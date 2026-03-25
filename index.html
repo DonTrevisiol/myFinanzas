@@ -1,0 +1,117 @@
+<!--	.../myFinanzas/index.html	-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Mis Finanzas</title>
+<link rel="icon" href="./assets/img/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="./css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel=stylesheet>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<h1>Mis Finanzas</h1>
+
+<!-- LOGIN -->
+<div id="loginBox" style="display:block;">
+    <h2>Login</h2>
+	<div>
+		<input id="email" placeholder="email">
+	</div>
+	<div class="input-group">
+		<input id="password" type="password" placeholder="password">
+		<button class="eye" onclick="toggleVisibility('password', this)">👁️</button>
+	</div>
+    
+    
+
+    <button id="btnLogin">Entrar</button>
+</div>
+
+<!-- APP -->
+<div id="appBox" style="display:none;">
+    
+    <div id="topBar">
+        <h3>
+            TOTAL: 
+            <span id="totalGlobal">0</span>
+            <button class="eye" id="btnToggleTotal">👁️</button>
+        </h3>
+    </div>
+
+    <!-- NAV -->
+    <div id="nav">
+        <button id="btnVerDashboard">Dashboard</button>
+        <button id="btnVerCuentas">Gestión de cuentas</button>
+        <button id="btnVerMovimientos">Movimientos</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="viewDashboard">
+        <h2>Mis cuentas</h2>
+        <div id="listaCuentas"></div>
+    </div>
+
+    <!-- CUENTAS -->
+    <div id="viewCuentas" style="display:none">
+        <h2>Crear cuenta</h2>
+
+        <input id="nombreCuenta" placeholder="Nombre cuenta">
+
+        <select id="tipoCuenta">
+            <option>Efectivo</option>
+            <option>Digital</option>
+        </select>
+
+        <select id="categoriaCuenta">
+            <option value="normal">Normal</option>
+            <option value="ahorro">Ahorro</option>
+        </select>
+
+        <input id="saldoInicial" type="number" placeholder="Saldo inicial">
+
+        <button id="btnCrearCuenta">Crear cuenta</button>
+
+        <h2>Eliminar cuentas</h2>
+        <div id="listaCuentasGestion"></div>
+    </div>
+
+    <!-- MOVIMIENTOS -->
+    <div id="viewMovimientos" style="display:none">
+        <h2>Agregar movimiento</h2>
+
+        <select id="tipoMovimiento">
+            <option value="ingreso">Ingreso</option>
+            <option value="gasto">Gasto</option>
+        </select>
+
+        <select id="cuentaMovimiento"></select>
+
+        <input id="montoMovimiento" type="number" placeholder="Monto">
+        <input id="categoriaMovimiento" placeholder="Categoría">
+        <input id="descripcionMovimiento" placeholder="Descripción">
+        <input id="fechaMovimiento" type="date">
+
+        <button id="btnCrearMovimiento">Guardar</button>
+
+        <h2>Historial</h2>
+        <div id="listaMovimientos"></div>
+    </div>
+
+    <button id="btnLogout">Cerrar sesión</button>
+
+</div>
+
+<script src="./js/supabase.js"></script>
+<script src="./js/auth.js"></script>
+<script src="./js/session.js"></script>
+<script src="./js/cuentas.js"></script>
+<script src="./js/movimientos.js"></script>
+<script src="./js/utils.js"></script>
+<script src="./js/app.js"></script>
+
+</body>
+</html>

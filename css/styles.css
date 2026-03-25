@@ -1,0 +1,102 @@
+/* ./css/styles.css */
+/* 🔥 Fondo estable SIN lag */
+html {
+min-height: 100%;
+background-image: url('../assets/img/backgrounds/bg.jpg');
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+background-attachment: fixed;
+}
+
+/* 🔥 body limpio (NO fondo acá) */
+body {
+margin: 0;
+font-family: playfair Display;
+max-width: 600px;
+margin: auto;
+padding: 12px;
+min-height: 100vh;
+}
+
+/* UI */
+h1 {
+text-align: center;
+}
+
+div {
+background: rgba(255,255,255,0.5);
+padding: 10px;
+margin-bottom: 10px;
+border-radius: 8px;
+backdrop-filter: blur(2px);
+}
+
+input, select, button {
+width: 100%;
+font-family: Georgia, serif;
+box-sizing: border-box;
+margin-top: 6px;
+padding: 10px;
+font-size: 16px;
+}
+#viewDashborad,
+#viewCuentas,
+#viewMovimientos {
+background: rgba(255,255,255,0.5);
+}
+#nav {
+display: flex;
+gap: 6px;
+}
+
+#nav button {
+flex: 1;
+}
+
+#topBar {
+position: block;
+top: 0;
+background: rgba(255,255,255,0.7);
+z-index: 10;
+}
+button.eye {
+width: auto !important;
+padding: 4px 8px;
+font-size: 14px;
+margin-left: 6px;
+}
+.input-group {
+display: flex;
+align-items: center;
+gap: 6px;
+}
+.input-group input {
+flex: 1;
+}
+.input-group .eye {
+width: auto;
+padding: 6px;
+font-size: 14px;
+}
+.movimiento.ingreso {
+color: green;
+font-weight: bold;
+}
+
+.movimiento.gasto {
+color: red;
+font-weight: bold;
+}
+
+.cuenta.ahorro {
+opacity: 0.6;
+}
+
+/* 📱 móvil */
+@media (max-width: 768px){
+
+body {
+max-width: 100%;
+}
+}
