@@ -5,7 +5,7 @@ async function crearMovimiento(){
 
 const tipo = document.getElementById("tipoMovimiento").value
 const cuentaId = Number(document.getElementById("cuentaMovimiento").value)
-const monto = document.getElementById("montoMovimiento").value
+const monto = toCents(document.getElementById("montoMovimiento").value)
 const categoria = document.getElementById("categoriaMovimiento").value
 const descripcion = document.getElementById("descripcionMovimiento").value
 const fecha = document.getElementById("fechaMovimiento").value
@@ -53,7 +53,8 @@ cuenta_id: cuentaId,
 monto,
 categoria,
 descripcion,
-fecha
+fecha,
+user_id: userData.user.id
 }]))
 
 }
@@ -69,7 +70,36 @@ document.getElementById("categoriaMovimiento").value = ""
 document.getElementById("descripcionMovimiento").value = ""
 document.getElementById("fechaMovimiento").value = ""
 
-cargarTodo()
+}
+
+async function cargarHistorial(){
+
+const { data, error } = await supabaseClient
+.from("movimientos")
+.select("id, tipo, cuenta_id, monto, descripcion, fecha")
+.order("fecha", { ascending: false })
+
+if(error){
+alert(error.message)
+return
+}
+
+let html = ""
+
+data.forEach(m => {
+
+html += `
+<div class="movimiento ${m.tipo}">
+${m.fecha} | ${m.tipo} | ${fromCents(m.monto)} | ${m.descripcion}
+<button onclick='editarMovimiento(${JSON.stringify(m)})'>✏️</button>
+<button onclick="eliminarMovimiento(${m.id})">❌</button>
+</div>
+`
+
+})
+
+document.getElementById("listaHistorial").innerHTML = html
+
 }
 
 
@@ -78,7 +108,7 @@ async function cargarMovimientos(){
 
 	const { data, error } = await supabaseClient
 	.from("movimientos")
-	.select("*")
+	.select("id, tipo, cuenta_id, cuenta_destino, monto, fecha")
 	.order("fecha", { ascending: false })
 
 	if(error){
@@ -92,7 +122,7 @@ async function cargarMovimientos(){
 
 		html += `
 		<div class="movimiento ${m.tipo}">
-		${m.fecha} | ${m.tipo} | ${m.monto} | ${m.descripcion}
+		${m.fecha} | ${m.tipo} | ${fromCents(m.monto)} | ${m.descripcion}
 		<button onclick='editarMovimiento(${JSON.stringify(m)})'>✏️</button>
 		<button onclick="eliminarMovimiento(${m.id})">❌</button>
 		</div>
@@ -129,7 +159,6 @@ async function eliminarMovimiento(id){
 		alert(error.message)
 		return
 	}
-	cargarMovimientos()
 	cargarCuentas()
 }
 

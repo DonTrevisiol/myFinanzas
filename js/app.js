@@ -39,7 +39,10 @@ document.getElementById("btnLogin").addEventListener("click", login)
 document.getElementById("btnLogout").addEventListener("click", logout)
 document.getElementById("btnCrearCuenta").addEventListener("click", crearCuenta)
 document.getElementById("btnCrearMovimiento").addEventListener("click", crearMovimiento)
-
+document.getElementById("btnVerHistorial").addEventListener("click", () => {
+	mostrarVista("viewHistorial")
+	cargarHistorial()
+})
 document.getElementById("btnVerDashboard").addEventListener("click", () => mostrarVista("viewDashboard"))
 
 document.getElementById("btnVerMovimientos").addEventListener("click", () => {
@@ -57,7 +60,7 @@ document.getElementById("btnToggleTotal").addEventListener("click", toggleTotal)
 
 /* 🔄 VISTAS */
 function mostrarVista(vista){
-const vistas = ["viewDashboard", "viewCuentas", "viewMovimientos"]
+const vistas = ["viewDashboard", "viewCuentas", "viewMovimientos", "viewHistorial"]
 
 vistas.forEach(v => {
 document.getElementById(v).style.display = "none"
@@ -65,5 +68,19 @@ document.getElementById(v).style.display = "none"
 
 document.getElementById(vista).style.display = "block"
 }
+document.getElementById("btnVerDashboard").addEventListener("click", () => {
+mostrarVista("viewDashboard")
+cargarCuentas()
+})
+
+document.getElementById("btnVerMovimientos").addEventListener("click", () => {
+mostrarVista("viewMovimientos")
+cargarMovimientos()
+})
+
+document.getElementById("btnVerCuentas").addEventListener("click", () => {
+mostrarVista("viewCuentas")
+cargarCuentasGestion()
+})
 
 initApp()

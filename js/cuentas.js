@@ -14,7 +14,8 @@ async function crearCuenta(){
 		nombre: nombre,
 		tipo: tipo,
 		categoria: categoria,
-		saldo_inicial: saldo
+		saldo_inicial: saldo,
+		user_id: userData.user.id
 	}
 	])
 
@@ -28,67 +29,72 @@ async function crearCuenta(){
 }
 
 async function cargarCuentas(){
-	const { data: cuentas } = await supabaseClient
-	.from("cuentas")
-	.select("*")
-	
-	cuentasGlobal = cuentas
 
-	const { data: movimientos } = await supabaseClient
-	.from("movimientos")
-	.select("*")
+const { data: cuentas } = await supabaseClient
+.from("cuentas")
+.select("id, nombre, categoria, saldo_inicial")
 
-	let html = ""
-	let options = ""
-	let totalGlobal = 0
-	const totalEl = document.getElementById("totalGlobal")
+const { data: movimientos } = await supabaseClient
+.from("movimientos")
+.select("tipo, cuenta_id, cuenta_destino, monto")
 
-	cuentas.forEach(cuenta => {
+cuentasGlobal = cuentas
 
-		let saldo = Number(cuenta.saldo_inicial)
+let saldos = {}
 
-		options += `
-		<option value="${cuenta.id}">
-		${cuenta.nombre}
-		</option>
-		`
+// inicializar en centavos
+cuentas.forEach(c => {
+saldos[c.id] = Number(c.saldo_inicial)
+})
 
-		movimientos.forEach(m => {
+// aplicar movimientos (ya en centavos)
+movimientos.forEach(m => {
 
-			if(m.cuenta_id === cuenta.id){
+if(m.cuenta_id){
+if(m.tipo === "ingreso") saldos[m.cuenta_id] += Number(m.monto)
+if(m.tipo === "gasto") saldos[m.cuenta_id] -= Number(m.monto)
+if(m.tipo === "transferencia") saldos[m.cuenta_id] -= Number(m.monto)
+}
 
-				if(m.tipo === "ingreso") saldo += Number(m.monto)
-				if(m.tipo === "gasto") saldo -= Number(m.monto)
-				if(m.tipo === "transferencia") saldo -= Number(m.monto)
+if(m.cuenta_destino){
+saldos[m.cuenta_destino] += Number(m.monto)
+}
 
-			}
+})
 
-			if(m.cuenta_destino === cuenta.id){
-				saldo += Number(m.monto)
-			}
+let html = ""
+let options = ""
+let totalGlobal = 0
 
-		})
-		totalGlobal += saldo
-		
-		html += `
-		<div class="cuenta ${cuenta.categoria || "normal"}">
-		<b>${cuenta.nombre}</b>: ${saldo}
-		</div>
-		`
+cuentas.forEach(c => {
 
-	})
-	if(totalVisible){
-		totalEl.innerText = totalGlobal
-	}else{
-		totalEl.dataset.valor = totalGlobal
-	}
-	document.getElementById("cuentaMovimiento").innerHTML = options
+const saldo = saldos[c.id] || 0
+totalGlobal += saldo
 
-	document.getElementById("listaCuentas").innerHTML = html
-	
+options += `<option value="${c.id}">${c.nombre}</option>`
 
+html += `
+<div class="cuenta ${c.categoria || "normal"}">
+<b>${c.nombre}</b>: ${fromCents(saldo)}
+</div>
+`
+
+})
+
+const totalEl = document.getElementById("totalGlobal")
+
+if(totalVisible){
+totalEl.innerText = fromCents(totalGlobal)
+}else{
+totalEl.dataset.valor = fromCents(totalGlobal)
+}
+
+document.getElementById("cuentaMovimiento").innerHTML = options
+document.getElementById("listaCuentas").innerHTML = html
 
 }
+
+
 
 async function eliminarCuenta(id){
 		const confirmar = confirm(`¿¡Eliminar cuenta!?\nESTO NO SE PUEDE DESHACER`)
@@ -109,7 +115,7 @@ async function eliminarCuenta(id){
 async function cargarCuentasGestion(){
 	const { data: cuentas } = await supabaseClient
 	.from("cuentas")
-	.select("*")
+	.select("id, nombre, categoria, saldo_inicial")
 	
 	let html = ""
 	

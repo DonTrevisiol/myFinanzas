@@ -40,7 +40,9 @@ function mostrarApp(){
 		document.getElementById("appBox").style.display = "block"
 		
 		toggleTracking(true)
-		cargarTodo()
+		cargarCuentas()
+		cargarCuentasGestion()
+		cargarMovimientos()
 }
 
 function mostrarLogin(){
