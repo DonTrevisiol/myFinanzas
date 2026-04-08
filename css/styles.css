@@ -58,6 +58,42 @@ h1{
   max-width:300px;
   border-radius:10px;
 }
+.movimiento.ingreso {
+  color: #16a34a; /* verde */
+  font-weight: bold;
+}
+
+.movimiento.gasto {
+  color: #dc2626; /* rojo */
+  font-weight: bold;
+}
+
+.movimiento {
+  display: flex;
+  gap: 10px;
+  padding: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  align-items: center;
+
+  white-space: nowrap; /* 👈 evita salto de línea */
+  overflow: hidden;
+  text-overflow: ellipsis; /* 👈 corta con "..." si es largo */
+}
+
+.col {
+  flex-shrink: 0;
+}
+
+/* tamaños controlados */
+.fecha { width: 90px; }
+.tipo { width: 80px; font-weight: bold; }
+.monto { width: 80px; }
+.cuenta { width: 120px; }
+.descripcion {
+  flex: 1; /* 👈 ocupa el resto */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .modal-ingreso {
   background: rgba(0,2550,64,0.4);

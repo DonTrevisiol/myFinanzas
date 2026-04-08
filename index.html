@@ -4,9 +4,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Mis Finanzas</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="./assets/img/favicon.ico" type="image/x-icon">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="./css/styles.css">
+
 <script src="./js/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
@@ -23,34 +24,42 @@
 </div>
 
 <!-- APP -->
-<div id="appBox" style="display:none">
-	<div>
-		<button id="btnLogout">Cerrar sesión</button>
-	</div>
-  <!-- TOTAL -->
-  <div class="card total">
-    TOTAL: <span id="total">0</span>
+<div id="appContainer" style="display:none">
+
+  <!-- NAV -->
+  <div>
+    <button id="btnDashboard">Dashboard</button>
+    <button id="btnHistorial">Historial</button>
+    <button id="btnLogout">Cerrar sesión</button>
   </div>
-	<!--👁️-->
-<button onclick="mostrarVista('viewHistorial'); cargarHistorial(); calcularBalanceMensual();">
-  Historial
-</button>
-  <!-- CUENTAS -->
-  <div id="cuentas"></div>
 
-  <!-- BOTONES -->
-  <div class="actions">
-    <button onclick="abrirModal('ingreso')">+ Ingreso</button>
-    <button onclick="abrirModal('gasto')">- Gasto</button>
+  <!-- DASHBOARD -->
+  <div id="viewDashboard">
+
+    <div class="card total">
+      TOTAL: <span id="total">0</span>
+    </div>
+
+    <div id="cuentas"></div>
+
+    <div class="actions">
+      <button id="btnIngreso">+ Ingreso</button>
+      <button id="btnGasto">- Gasto</button>
+    </div>
+
   </div>
-</div>
-<div id="viewHistorial" style="display:none">
-  <h2>Historial</h2>
 
-  <div id="balanceMensual"></div>
+  <!-- 👁️HISTORIAL -->
+  <div id="viewHistorial" style="display:none">
+    <h2>Historial</h2>
 
-  <div id="historial"></div>
+    <div id="balanceMensual"></div>
+    <div id="historial"></div>
+    <div id="paginacion"></div>
+  </div>
+
 </div>
+
 <!-- MODAL -->
 <div id="modal" class="modal">
   <div class="modal-content">
@@ -58,23 +67,24 @@
 
     <select id="cuenta"></select>
     <input id="monto" type="number" placeholder="Monto">
+
     <select id="categoria">
-		<option value="comida">Comida</option>
-		<option value="transporte">Transporte</option>
-		<option value="ocio">Ocio</option>
-		<option value="salario">Salario</option>
-	</select>
+      <option value="comida">Comida</option>
+      <option value="transporte">Transporte</option>
+      <option value="ocio">Ocio</option>
+      <option value="salario">Salario</option>
+    </select>
 
-	<input id="descripcion" placeholder="Detalle">
+    <input id="descripcion" placeholder="Detalle">
 
-    <button onclick="guardarMovimiento()">Guardar</button>
+    <button id="btnGuardarMov">Guardar</button>
     <button onclick="cerrarModal()">Cancelar</button>
   </div>
 </div>
 
 <script src="./js/supabase.js"></script>
-<script src="./js/auth.js"></script>
 <script src="./js/ui.js"></script>
+<script src="./js/auth.js"></script>
 <script src="./js/cuentas.js"></script>
 <script src="./js/movimientos.js"></script>
 <script src="./js/app.js"></script>

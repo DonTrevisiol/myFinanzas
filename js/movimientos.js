@@ -1,5 +1,7 @@
 /* ./myFinanzas/js/movimientos.js: */
 let tipoActual = "ingreso"
+let paginaActual = 0
+const LIMITE = 10
 
 /* MENÚ DE INGRESO DE DATOS DE MOVIMIENTOS: */
 function abrirModal(tipo){
@@ -22,10 +24,15 @@ function cerrarModal(){
 }
 
 async function cargarHistorial(){
+
+  const desde = paginaActual * LIMITE
+  const hasta = desde + LIMITE - 1
+
   const { data, error } = await supabaseClient
     .from("movimientos")
     .select("*")
     .order("fecha", { ascending: false })
+    .range(desde, hasta)
 
   if(error){
     alert(error.message)
@@ -37,16 +44,112 @@ async function cargarHistorial(){
   data.forEach(m => {
     html += `
       <div class="movimiento ${m.tipo}">
-        ${m.fecha} | ${m.tipo} | ${(m.monto/100).toFixed(2)} | ${m.categoria || "-"} | ${m.descripcion || ""}
+        ${m.fecha} | ${m.tipo} | ${m.monto/100} | ${m.categoria || "-"} | ${m.descripcion || ""}
       </div>
     `
   })
 
   document.getElementById("historial").innerHTML = html
+
+  // 👇 CONTROL DE BOTONES
+  const btnAnterior = document.getElementById("btnAnterior")
+  const btnSiguiente = document.getElementById("btnSiguiente")
+
+  // Botón anterior
+  btnAnterior.style.display = paginaActual === 0 ? "none" : "inline-block"
+
+  // Botón siguiente (CLAVE)
+  if(data.length < LIMITE){
+    btnSiguiente.style.display = "none"
+  }else{
+    btnSiguiente.style.display = "inline-block"
+  }
+}
+function formatearFecha(fechaISO){
+  const [año, mes, dia] = fechaISO.split("-")
+  return `${dia}/${mes}/${año}`
+}
+async function cargarHistorial(){
+
+  const desde = paginaActual * LIMITE
+  const hasta = desde + LIMITE - 1
+
+  const { data, error } = await supabaseClient
+    .from("movimientos")
+    .select(`
+    id,
+    tipo,
+    monto,
+    fecha,
+    descripcion,
+    cuentas(nombre)
+    `)
+    .order("fecha", { ascending: false })
+    .range(desde, hasta)
+
+  if(error){
+    alert(error.message)
+    return
+  }
+
+  // 🚫 CONTROL REAL DE LÍMITE
+  if(data.length === 0 && paginaActual > 0){
+    paginaActual--
+    return cargarHistorial()
+  }
+
+  // detectar última página
+  ultimaPagina = data.length < LIMITE
+
+  let html = ""
+
+  data.forEach(m => {
+
+  const fecha = formatearFecha(m.fecha)
+  const monto = (m.monto / 100).toFixed(2)
+  const cuenta = m.cuentas?.nombre || "Sin cuenta"
+
+  html += `
+  <div class="movimiento ${m.tipo}">
+    <span class="col fecha">${fecha}</span>
+    <span class="col tipo">${m.tipo.toUpperCase()}</span>
+    <span class="col monto">${monto}</span>
+    <span class="col cuenta">${cuenta}</span>
+    <span class="col descripcion">${m.descripcion || ""}</span>
+  </div>
+	`
+	})
+
+  document.getElementById("historial").innerHTML = html
+
+  renderPaginacion()
 }
 
+function renderPaginacion(){
 
+  let html = ""
 
+  if(paginaActual > 0){
+    html += `<button onclick="cambiarPagina(-1)">⬅️</button>`
+  }
+
+  html += `<span> Página ${paginaActual + 1} </span>`
+
+  // 👇 SOLO SI NO ES ÚLTIMA PÁGINA
+  if(!ultimaPagina){
+    html += `<button onclick="cambiarPagina(1)">➡️</button>`
+  }
+
+  document.getElementById("paginacion").innerHTML = html
+}
+
+function cambiarPagina(direccion){
+  paginaActual += direccion
+
+  if(paginaActual < 0) paginaActual = 0
+
+  cargarHistorial()
+}
 
 async function calcularBalanceMensual(){
 
@@ -72,9 +175,6 @@ async function calcularBalanceMensual(){
   document.getElementById("balanceMensual").innerText =
     `Balance: ${(balance/100).toFixed(2)}`
 }
-
-
-
 
 async function guardarMovimiento(){
 

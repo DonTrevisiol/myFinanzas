@@ -12,9 +12,11 @@ async function login(){
   }
 }
 
-async function logout(){
+async function logout(confirmacion = true){
+  if(confirmacion){
   const confirmar = confirm("¿Cerrar sesión?")
   if(!confirmar) return
+  }
 
   await supabaseClient.auth.signOut()
   localStorage.removeItem("loginTime")
