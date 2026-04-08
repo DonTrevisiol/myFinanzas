@@ -1,5 +1,7 @@
-/* ./myFinanzas/js/supabase.js */
+/* ./myFinanzas/js/supabase.js: */
 const supabaseClient = supabase.createClient(
 window.CONFIG.SUPABASE_URL,
-window.CONFIG.SUPABASE_KEY
+window.CONFIG.SUPABASE_KEY,
+{auth: {persistSession: true,
+		autoRefreshToken: true}}
 )
