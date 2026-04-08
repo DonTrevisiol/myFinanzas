@@ -21,11 +21,68 @@ function cerrarModal(){
   document.getElementById("modal").style.display = "none"
 }
 
+async function cargarHistorial(){
+  const { data, error } = await supabaseClient
+    .from("movimientos")
+    .select("*")
+    .order("fecha", { ascending: false })
+
+  if(error){
+    alert(error.message)
+    return
+  }
+
+  let html = ""
+
+  data.forEach(m => {
+    html += `
+      <div class="movimiento ${m.tipo}">
+        ${m.fecha} | ${m.tipo} | ${(m.monto/100).toFixed(2)} | ${m.categoria || "-"} | ${m.descripcion || ""}
+      </div>
+    `
+  })
+
+  document.getElementById("historial").innerHTML = html
+}
+
+
+
+
+async function calcularBalanceMensual(){
+
+  const hoy = new Date()
+  const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1)
+    .toISOString().split("T")[0]
+
+  const { data } = await supabaseClient
+    .from("movimientos")
+    .select("tipo, monto, fecha")
+    .gte("fecha", inicioMes)
+
+  let ingresos = 0
+  let gastos = 0
+
+  data.forEach(m => {
+    if(m.tipo === "ingreso") ingresos += m.monto
+    else gastos += m.monto
+  })
+
+  const balance = ingresos - gastos
+
+  document.getElementById("balanceMensual").innerText =
+    `Balance: ${(balance/100).toFixed(2)}`
+}
+
+
+
+
 async function guardarMovimiento(){
 
   const cuentaId = Number(document.getElementById("cuenta").value)
   const montoInput = Number(document.getElementById("monto").value)
-
+  const categoria = document.getElementById("categoria").value
+  const descripcion = document.getElementById("descripcion").value
+  
   if(!cuentaId){
     alert("Selecciona una cuenta")
     return
@@ -48,9 +105,14 @@ async function guardarMovimiento(){
       tipo: tipoActual,
       monto,
       cuenta_id: cuentaId,
-      fecha: fecha
+      fecha,
+      categoria,
+      descripcion
     }])
-
+  if(tipoActual === "gasto" && cuentaId.categoria === "ahorro"){
+	alert("No puedes gastar desde una cuenta de ahorro")
+	return
+	}
   if(errorInsert){
     alert(errorInsert.message)
     return

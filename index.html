@@ -32,6 +32,9 @@
     TOTAL: <span id="total">0</span>
   </div>
 	<!--👁️-->
+<button onclick="mostrarVista('viewHistorial'); cargarHistorial(); calcularBalanceMensual();">
+  Historial
+</button>
   <!-- CUENTAS -->
   <div id="cuentas"></div>
 
@@ -41,7 +44,13 @@
     <button onclick="abrirModal('gasto')">- Gasto</button>
   </div>
 </div>
+<div id="viewHistorial" style="display:none">
+  <h2>Historial</h2>
 
+  <div id="balanceMensual"></div>
+
+  <div id="historial"></div>
+</div>
 <!-- MODAL -->
 <div id="modal" class="modal">
   <div class="modal-content">
@@ -49,6 +58,14 @@
 
     <select id="cuenta"></select>
     <input id="monto" type="number" placeholder="Monto">
+    <select id="categoria">
+		<option value="comida">Comida</option>
+		<option value="transporte">Transporte</option>
+		<option value="ocio">Ocio</option>
+		<option value="salario">Salario</option>
+	</select>
+
+	<input id="descripcion" placeholder="Detalle">
 
     <button onclick="guardarMovimiento()">Guardar</button>
     <button onclick="cerrarModal()">Cancelar</button>
