@@ -33,13 +33,42 @@ function setEvents(){
   document.getElementById("btnHistorial").addEventListener("click", () => {
     mostrarVista("viewHistorial")
     cargarHistorial()
-    calcularBalanceMensual()
+    calcularBalance()
   })
   
   document.getElementById("btnIngreso").addEventListener("click", () => abrirModal("ingreso"))
   document.getElementById("btnGasto").addEventListener("click", () => abrirModal("gasto"))
 
   document.getElementById("btnGuardarMov").addEventListener("click", guardarMovimiento)
+  
+  document.getElementById("filtroIngresos").addEventListener("click", () => {
+    filtroTipo = "ingreso"
+    paginaActual = 0
+    cargarHistorial()
+    calcularBalance();
+  })
+
+  document.getElementById("filtroGastos").addEventListener("click", () => {
+    filtroTipo = "gasto"
+    paginaActual = 0
+    cargarHistorial()
+    calcularBalance();
+  })
+
+  document.getElementById("filtroTodos").addEventListener("click", () => {
+    filtroTipo = "todos"
+    filtroActual = "todos"
+    paginaActual = 0
+    cargarHistorial()
+    calcularBalance();
+  })
+
+  document.getElementById("filtroHoy").addEventListener("click", () => {
+    filtroActual = "hoy"
+    paginaActual = 0
+    cargarHistorial()
+    calcularBalance();
+  })
 }
 
 /* =========================

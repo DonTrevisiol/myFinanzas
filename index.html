@@ -7,7 +7,10 @@
 <link rel="icon" href="./assets/img/favicon.ico" type="image/x-icon">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="./css/styles.css">
-
+<!--FONTS:-->
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+<!--SCRIPTS:-->
 <script src="./js/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
@@ -52,8 +55,14 @@
   <!-- 👁️HISTORIAL -->
   <div id="viewHistorial" style="display:none">
     <h2>Historial</h2>
-
-    <div id="balanceMensual"></div>
+    <div id="filtros">
+		<button id="filtroHoy">HOY</button>
+		<button id="filtroTodos">TODOS</button>
+		<button id="filtroIngresos">INGRESOS</button>
+		<button id="filtroGastos">GASTOS</button>
+    
+    </div>
+    <h2><div id="balanceMensual"></div></h2>
     <div id="historial"></div>
     <div id="paginacion"></div>
   </div>

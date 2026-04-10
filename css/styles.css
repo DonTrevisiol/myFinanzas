@@ -1,7 +1,7 @@
 /* ./myFinanzas/css/styles.css: */
 body{
   font-family: Arial;
-  max-width: 500px;
+  max-width: 1000px;
   margin: auto;
   padding: 10px;
   background: #f2f2f2;
@@ -25,6 +25,7 @@ h1{
 }
 
 .cuenta{
+  font-family: 'Playfair Display', serif;
   display: flex;
   justify-content: space-between;
 }
@@ -40,6 +41,9 @@ h1{
   font-size: 16px;
 }
 
+/* =========================
+   MODAL
+========================= */
 .modal{
   position: fixed;
   top:0;
@@ -58,49 +62,155 @@ h1{
   max-width:300px;
   border-radius:10px;
 }
-.movimiento.ingreso {
-  color: #16a34a; /* verde */
-  font-weight: bold;
-}
-
-.movimiento.gasto {
-  color: #dc2626; /* rojo */
-  font-weight: bold;
-}
-
-.movimiento {
-  display: flex;
-  gap: 10px;
-  padding: 6px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  align-items: center;
-
-  white-space: nowrap; /* 👈 evita salto de línea */
-  overflow: hidden;
-  text-overflow: ellipsis; /* 👈 corta con "..." si es largo */
-}
-
-.col {
-  flex-shrink: 0;
-}
-
-/* tamaños controlados */
-.fecha { width: 90px; }
-.tipo { width: 80px; font-weight: bold; }
-.monto { width: 80px; }
-.cuenta { width: 120px; }
-.descripcion {
-  flex: 1; /* 👈 ocupa el resto */
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
 .modal-ingreso {
-  background: rgba(0,2550,64,0.4);
+  background: rgba(0,255,64,0.15);
   border: 2px solid green;
 }
 
 .modal-gasto {
-  background: rgba(200,0,0,0.4);
+  background: rgba(200,0,0,0.15);
   border: 2px solid red;
 }
+
+/* =========================
+   HISTORIAL - GRID PRO
+========================= */
+
+.header,
+.movimiento {
+  display: grid;
+  grid-template-columns: 
+    110px /* Fecha */
+    90px /* Tipo */
+    120px /* Monto */
+    120px /* Cuenta */
+    minmax(200px, 1fr); /* Detalle (flexible) */
+
+  gap: 10px;
+  padding: 8px 10px;
+  align-items: center;
+}
+
+/* HEADER */
+.header {
+  background: #D0D0D7;
+  color: #000;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* FILAS */
+.movimiento {
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  font-family: 'Libre Baskerville', serif;
+}
+
+/* COLORES */
+.movimiento.ingreso {
+  color: #16a34a;
+  font-weight: bold;
+}
+
+.movimiento.gasto {
+  color: #dc2626;
+  font-weight: bold;
+}
+
+/* COLUMNAS */
+.col {
+  overflow: visible;
+}
+
+/* ESPECÍFICOS */
+.fecha {
+  white-space: nowrap;
+}
+
+.tipo {
+  text-align: center;
+}
+
+.monto {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cuenta {
+  white-space: nowrap;
+}
+
+.descripcion {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+.empty {
+  text-align: center;
+  opacity: 0.6;
+  padding: 20px;
+  font-style: italic;
+}
+
+
+/* =========================
+   RESPONSIVE (MOBILE)
+========================= */
+
+@media (max-width: 600px){
+
+  body{
+    max-width: 100%;
+  }
+
+  /* ocultar header en mobile */
+  .header{
+    display: none;
+  }
+
+  /* cada movimiento como tarjeta */
+  .movimiento{
+    display: block;
+    background: white;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  .col{
+    display: block;
+    padding: 2px 0;
+  }
+
+  /* fila principal */
+  .movimiento .fecha{
+    font-weight: bold;
+  }
+
+  .movimiento .tipo{
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+  .movimiento .monto{
+    display: inline-block;
+    float: right;
+  }
+
+  .movimiento .cuenta{
+    font-size: 14px;
+    opacity: 0.7;
+  }
+
+  .movimiento .descripcion{
+    margin-top: 5px;
+    font-style: italic;
+  }
+
+}
+
