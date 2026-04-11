@@ -1,4 +1,9 @@
 /* ./myFinanzas/js/movimientos.js */
+const categorias = {
+	ingreso: ["Salario", "Venta", "Regalo", "Suerte", "Otros"],
+	gasto: ["Comida", "Transporte", "Ocio", "Servicios", "Higiene", "Otros"]
+}
+const catCuenta = ["normal", "ahorro"]
 
 let tipoActual = "ingreso"
 let paginaActual = 0
@@ -8,10 +13,36 @@ let filtroTipo = "todos"
 let ultimaPagina = false
 
 /* =========================
+   CATEGORIAS
+========================= */
+function cargarCategorias(){
+  const select = document.getElementById("categoria")
+  select.innerHTML = ""
+
+  categorias[tipoActual].forEach(cat => {
+    const option = document.createElement("option")
+    option.value = cat
+    option.textContent = cat
+    select.appendChild(option)
+  })
+}
+/* =========================
    MODAL
 ========================= */
 function abrirModal(tipo){
   tipoActual = tipo
+  const selectCuenta = document.getElementById("cuenta")
+  if(tipo === "gasto"){
+	  selectCuenta.selectedIndex = 0
+  }
+  Array.from(selectCuenta.options).forEach(opt => {
+	  const esAhorro = opt.dataset.categoria === "ahorro"
+	  if(tipo === "gasto" && esAhorro){
+		  opt.disabled = true
+	  } else {
+		  opt.disabled = false
+	  }
+  });
 
   const modal = document.getElementById("modal")
   modal.style.display = "block"
@@ -20,6 +51,7 @@ function abrirModal(tipo){
 
   modal.classList.remove("modal-ingreso", "modal-gasto")
   modal.classList.add(tipo === "ingreso" ? "modal-ingreso" : "modal-gasto")
+  cargarCategorias();
 }
 
 function cerrarModal(){
@@ -32,6 +64,13 @@ function cerrarModal(){
 function formatearFecha(fechaISO){
   const [año, mes, dia] = fechaISO.split("-")
   return `${dia}/${mes}/${año}`
+}
+
+function limpiarFormularioMovimiento(){
+  document.getElementById("monto").value = "";
+  document.getElementById("descripcion").value = "";
+  document.getElementById("categoria").selectedIndex = 0;
+  document.getElementById("cuenta").selectedIndex = 0;
 }
 
 /* =========================
@@ -52,7 +91,7 @@ async function cargarHistorial(){
       descripcion,
       cuentas(nombre)
     `)
-    .order("fecha", { ascending: false })
+    .order("created_at", { ascending: false })
 
   // 📅 filtro HOY
   if(filtroActual === "hoy"){
@@ -66,7 +105,7 @@ async function cargarHistorial(){
   }
 
   // 📄 paginación
-  const { data, error } = await query.range(desde, hasta)
+  const { data, error } = await query.range(desde, hasta + 1)
 
   if(error){
     alert(error.message)
@@ -77,19 +116,26 @@ async function cargarHistorial(){
     paginaActual--
     return cargarHistorial()
   }
+  
+  if(data.length > LIMITE){
+	  hayMas = true
+	  data.pop()
+  }else{
+	  hayMas = false
+  }
 
-  ultimaPagina = data.length < LIMITE
+  ultimaPagina = !hayMas
 
   let html = ""
 
   // 👇 HEADER SIEMPRE
   html += `
     <div class="header">
-      <div class="col fecha">Fecha</div>
-      <div class="col tipo">Tipo</div>
-      <div class="col monto">Monto</div>
-      <div class="col cuenta">Cuenta</div>
-      <div class="col descripcion">Detalle</div>
+      <div class="col" id="colFecha">Fecha</div>
+      <div class="col" id="colTipo">Tipo</div>
+      <div class="col" id="colMonto">Monto</div>
+      <div class="col" id="colCuenta">Cuenta</div>
+      <div class="col" id="colDescripcion">Detalle</div>
     </div>
   `
 
@@ -207,7 +253,13 @@ async function guardarMovimiento(){
 
   const monto = Math.round(montoInput * 100)
   const fecha = new Date().toISOString().split("T")[0]
-
+  const selectCuenta = document.getElementById("cuenta")
+  const categoriaCuenta = selectCuenta.options[selectCuenta.selectedIndex].dataset.categoria
+    
+  if(tipoActual === "gasto" && categoriaCuenta === "ahorro"){
+	  alert("NO PUEDES GASTAR DESDE UNA CUENTA DE AHORRO")
+	  return
+  }
   const { error } = await supabaseClient
     .from("movimientos")
     .insert([{
@@ -236,7 +288,7 @@ async function guardarMovimiento(){
     alert(errorRPC.message)
     return
   }
-
+  limpiarFormularioMovimiento()
   cerrarModal()
   cargarCuentas()
 }

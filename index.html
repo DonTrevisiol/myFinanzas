@@ -35,14 +35,19 @@
     <button id="btnHistorial">Historial</button>
     <button id="btnLogout">Cerrar sesión</button>
   </div>
-
+  <hr>
+  <br>
   <!-- DASHBOARD -->
   <div id="viewDashboard">
 
-    <div class="card total">
+    <div class="card total" id="totalContainer">
       TOTAL: <span id="total">0</span>
     </div>
-
+	<div class="headerCuentas">
+		<div class="cuentaName">Cuenta</div>
+        <div class="cuentaType">Tipo</div>
+        <div class="cuentaCash">Categoria</div>
+	</div>
     <div id="cuentas"></div>
 
     <div class="actions">
@@ -57,7 +62,7 @@
     <h2>Historial</h2>
     <div id="filtros">
 		<button id="filtroHoy">HOY</button>
-		<button id="filtroTodos">TODOS</button>
+		<button id="filtroTodos">HISTORICO</button>
 		<button id="filtroIngresos">INGRESOS</button>
 		<button id="filtroGastos">GASTOS</button>
     
@@ -76,14 +81,7 @@
 
     <select id="cuenta"></select>
     <input id="monto" type="number" placeholder="Monto">
-
-    <select id="categoria">
-      <option value="comida">Comida</option>
-      <option value="transporte">Transporte</option>
-      <option value="ocio">Ocio</option>
-      <option value="salario">Salario</option>
-    </select>
-
+    <select id="categoria"></select>
     <input id="descripcion" placeholder="Detalle">
 
     <button id="btnGuardarMov">Guardar</button>
