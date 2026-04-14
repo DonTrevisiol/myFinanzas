@@ -180,6 +180,9 @@ h1{
   text-shadow: none;
   opacity: 0.8;
 }
+#cashCuentas{
+  font-size: 30px
+}
 /* =========================
    EMPTY STATE
 ========================= */

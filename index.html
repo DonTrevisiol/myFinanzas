@@ -61,12 +61,30 @@
   <div id="viewHistorial" style="display:none">
     <h2>Historial</h2>
     <div id="filtros">
-		<button id="filtroHoy">HOY</button>
-		<button id="filtroTodos">HISTORICO</button>
-		<button id="filtroIngresos">INGRESOS</button>
-		<button id="filtroGastos">GASTOS</button>
-    
-    </div>
+	<!-- TIEMPO -->
+		<select id="filtroTiempo">
+			<option value="hoy">Hoy</option>
+			<option value="semana">Esta semana</option>
+			<option value="mes">Este mes</option>
+			<option value="anio">Este año</option>
+			<option value="recientes">Agregados recientemente</option>
+			<option value="todos">Histórico</option>
+			<option value="custom">Personalizado</option>
+		</select>
+  <!-- RANGO PERSONALIZADO -->
+		<div id="rangoCustom" style="display:none;">
+			<input type="date" id="fechaDesde">
+			<input type="date" id="fechaHasta">
+		</div>
+  <!-- TIPO -->
+		<select id="filtroTipo">
+			<option value="todos">Todos</option>
+			<option value="ingreso">Ingresos</option>
+			<option value="gasto">Gastos</option>
+			<option value="ahorro">Ahorros</option>
+		</select>
+
+	</div>
     <h2><div id="balanceMensual"></div></h2>
     <div id="historial"></div>
     <div id="paginacion"></div>
@@ -83,6 +101,7 @@
     <input id="monto" type="number" placeholder="Monto">
     <select id="categoria"></select>
     <input id="descripcion" placeholder="Detalle">
+    <input id="fecha" type="date">
 
     <button id="btnGuardarMov">Guardar</button>
     <button onclick="cerrarModal()">Cancelar</button>

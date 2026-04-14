@@ -1,4 +1,5 @@
-/*	./myFinanzas/js/app.js:	*/
+/* ./myFinanzas/js/app.js */
+
 document.addEventListener("DOMContentLoaded", () => {
   setEvents()
   initApp()
@@ -23,52 +24,61 @@ async function initApp(){
 ========================= */
 function setEvents(){
 
-  document.getElementById("btnLogin").addEventListener("click", login)
-  document.getElementById("btnLogout").addEventListener("click", logout)
+  // AUTH
+  document.getElementById("btnLogin")?.addEventListener("click", login)
+  document.getElementById("btnLogout")?.addEventListener("click", logout)
 
-  document.getElementById("btnDashboard").addEventListener("click", () => {
+  // NAV
+  document.getElementById("btnDashboard")?.addEventListener("click", () => {
     mostrarVista("viewDashboard")
   })
 
-  document.getElementById("btnHistorial").addEventListener("click", () => {
+  document.getElementById("btnHistorial")?.addEventListener("click", () => {
     mostrarVista("viewHistorial")
+    paginaActual = 0
     cargarHistorial()
     calcularBalance()
   })
-  
-  document.getElementById("btnIngreso").addEventListener("click", () => abrirModal("ingreso"))
-  document.getElementById("btnGasto").addEventListener("click", () => abrirModal("gasto"))
 
-  document.getElementById("btnGuardarMov").addEventListener("click", guardarMovimiento)
-  
-  document.getElementById("filtroIngresos").addEventListener("click", () => {
-    filtroTipo = "ingreso"
+  // FILTROS (NUEVOS SELECTS)
+
+  document.getElementById("filtroTiempo")?.addEventListener("change", (e) => {
+    filtroTiempo = e.target.value
     paginaActual = 0
+
+    const custom = document.getElementById("rangoCustom")
+    if(custom){
+      custom.style.display = filtroTiempo === "custom" ? "block" : "none"
+    }
+
     cargarHistorial()
-    calcularBalance();
+    calcularBalance()
   })
 
-  document.getElementById("filtroGastos").addEventListener("click", () => {
-    filtroTipo = "gasto"
+  document.getElementById("filtroTipo")?.addEventListener("change", (e) => {
+    filtroTipo = e.target.value
     paginaActual = 0
     cargarHistorial()
-    calcularBalance();
+    calcularBalance()
   })
 
-  document.getElementById("filtroTodos").addEventListener("click", () => {
-    filtroTipo = "todos"
-    filtroActual = "todos"
+  document.getElementById("fechaDesde")?.addEventListener("change", (e) => {
+    fechaDesde = e.target.value
     paginaActual = 0
     cargarHistorial()
-    calcularBalance();
   })
 
-  document.getElementById("filtroHoy").addEventListener("click", () => {
-    filtroActual = "hoy"
+  document.getElementById("fechaHasta")?.addEventListener("change", (e) => {
+    fechaHasta = e.target.value
     paginaActual = 0
     cargarHistorial()
-    calcularBalance();
   })
+
+  // MOVIMIENTOS
+  document.getElementById("btnIngreso")?.addEventListener("click", () => abrirModal("ingreso"))
+  document.getElementById("btnGasto")?.addEventListener("click", () => abrirModal("gasto"))
+
+  document.getElementById("btnGuardarMov")?.addEventListener("click", guardarMovimiento)
 }
 
 /* =========================
@@ -82,5 +92,6 @@ function mostrarVista(vista){
     if(el) el.style.display = "none"
   })
 
-  document.getElementById(vista).style.display = "block"
+  const activa = document.getElementById(vista)
+  if(activa) activa.style.display = "block"
 }

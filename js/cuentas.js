@@ -3,7 +3,7 @@ async function cargarCuentas(){
 
   const { data } = await supabaseClient
   .from("cuentas")
-  .select("id, nombre, saldo, tipo, categoria")
+  .select("id, nombre, saldo, tipo, categoria, moneda")
   .order("saldo", { ascending: false })
   
   let html = ""
@@ -17,7 +17,7 @@ async function cargarCuentas(){
         <span>${c.nombre}</span>
         <span>${c.tipo}</span>
         <span>${c.categoria}</span>
-        <span>${(c.saldo/100).toFixed(2)}</span>
+        <span id="cashCuentas">${c.moneda} ${(c.saldo/100).toFixed(2)}</span>
       </div>
     `
     	
