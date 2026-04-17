@@ -28,6 +28,16 @@ let modoOrden = "fecha"
 function cargarCategorias(){
   const select = document.getElementById("categoria")
   select.innerHTML = ""
+  
+  //placeholder
+  const placeholder = document.createElement("option")
+  placeholder.value = ""
+  placeholder.textContent = "Seleccionar categoria"
+  placeholder.disabled = true
+  placeholder.selected = true
+  placeholder.hidden = true
+  
+  select.appendChild(placeholder)
 
   catMov[tipoActual].forEach(cat => {
     const option = document.createElement("option")
@@ -43,9 +53,11 @@ function cargarCategorias(){
 ========================= */
 function abrirModal(tipo){
   tipoActual = tipo
-
+  document.getElementById("cuenta").selectedIndex = 0
   const modal = document.getElementById("modal")
   modal.style.display = "block"
+  const monedaSelect = document.getElementById("moneda")
+  monedaSelect.disabled = true
 
   document.getElementById("modalTitle").innerText = tipo.toUpperCase()
 
@@ -61,9 +73,10 @@ function abrirModal(tipo){
   })
   
   const inputFecha = document.getElementById("fecha")
-  inputFecha.value = new Date().toISOString().split("T")[0]  
-  
+  inputFecha.value = obtenerFechaLocal()
+  document.getElementById("moneda").innerHTML = `<option value="" disabled selected hidden>Seleccionar moneda</option>`
   cargarCategorias()
+  cargarMonedasPorCuenta()
 }
 
 function cerrarModal(){
@@ -86,41 +99,58 @@ function limpiarFormularioMovimiento(){
   document.getElementById("cuenta").selectedIndex = 0
 }
 
+function obtenerFechaLocal(){
+  const hoy = new Date()
+
+  const año = hoy.getFullYear()
+  const mes = String(hoy.getMonth() + 1).padStart(2, "0")
+  const dia = String(hoy.getDate()).padStart(2, "0")
+
+  return `${año}-${mes}-${dia}`
+}
 
 /* =========================
    FILTRO TIEMPO (UNIFICADO)
 ========================= */
+
+function getFiltrosHistorial(){
+  return {
+    tipo: filtroTipo,
+    tiempo: filtroTiempo,
+    moneda: document.getElementById("filtroMonedaHistorial")?.value || "todas"
+  }
+}
+
 function aplicarFiltroTiempo(query){
 
-  const hoy = new Date()
-
-  // normalizar a YYYY-MM-DD
-  const hoyStr = hoy.toISOString().split("T")[0]
+  const hoyStr = obtenerFechaLocal()
 
   if(filtroTiempo === "hoy"){
     return query.eq("fecha", hoyStr)
   }
 
   if(filtroTiempo === "semana"){
-    const inicio = new Date(hoy)
+    const hoy = new Date()
 
-    // 🔥 domingo = 0
-    const dia = inicio.getDay()
+    const inicio = new Date(hoy)
+    const dia = inicio.getDay() // domingo = 0
     inicio.setDate(inicio.getDate() - dia)
 
-    const inicioStr = inicio.toISOString().split("T")[0]
+    const inicioStr = `${inicio.getFullYear()}-${String(inicio.getMonth() + 1).padStart(2, "0")}-${String(inicio.getDate()).padStart(2, "0")}`
 
     return query.gte("fecha", inicioStr)
   }
 
   if(filtroTiempo === "mes"){
-    const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1)
-    return query.gte("fecha", inicio.toISOString().split("T")[0])
+    const hoy = new Date()
+    const inicioStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-01`
+    return query.gte("fecha", inicioStr)
   }
 
   if(filtroTiempo === "anio"){
-    const inicio = new Date(hoy.getFullYear(), 0, 1)
-    return query.gte("fecha", inicio.toISOString().split("T")[0])
+    const hoy = new Date()
+    const inicioStr = `${hoy.getFullYear()}-01-01`
+    return query.gte("fecha", inicioStr)
   }
 
   if(filtroTiempo === "custom"){
@@ -146,49 +176,58 @@ async function cargarHistorial(){
   const hasta = desde + LIMITE
 
   let hayMas = false
-  
+
+  const { tipo, moneda } = getFiltrosHistorial()
+
   if(filtroTiempo === "recientes"){
-	modoOrden = "created_at"
+    modoOrden = "created_at"
   }else{
-	modoOrden = "fecha"
+    modoOrden = "fecha"
   }
 
   let query = supabaseClient
-	.from("movimientos")
-	.select(`
-		id,
-		tipo,
-		monto,
-		fecha,
-		descripcion,
-		cuentas!inner(nombre, categoria)
-	`)
+    .from("movimientos")
+    .select(`
+      id,
+      tipo,
+      monto,
+      fecha,
+      descripcion,
+      moneda,
+      cuentas!inner(nombre, categoria, tipo)
+    `)
 
-	if(modoOrden === "fecha"){
-		query = query
-		.order("fecha", { ascending: false })
-		.order("id", { ascending: false })
-	}else{
-		query = query
-		.order("created_at", { ascending: false })
-		.order("id", { ascending: false })
-	}
-    
+  // ===== ORDEN =====
+  if(modoOrden === "fecha"){
+    query = query
+      .order("fecha", { ascending: false })
+      .order("id", { ascending: false })
+  }else{
+    query = query
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+  }
 
-  // filtros
+  // ===== FILTRO TIEMPO =====
   query = aplicarFiltroTiempo(query)
 
-  if(filtroTipo === "ingreso"){
+  // ===== FILTRO TIPO =====
+  if(tipo === "ingreso"){
     query = query.eq("tipo", "ingreso")
   }
 
-  if(filtroTipo === "gasto"){
+  if(tipo === "gasto"){
     query = query.eq("tipo", "gasto")
   }
 
-  if(filtroTipo === "ahorro"){
+  if(tipo === "ahorro"){
     query = query.eq("tipo", "ingreso")
     query = query.eq("cuentas.categoria", "ahorro")
+  }
+
+  // ===== FILTRO MONEDA =====
+  if(moneda !== "todas"){
+    query = query.eq("moneda", moneda)
   }
 
   const { data, error } = await query.range(desde, hasta)
@@ -214,18 +253,17 @@ async function cargarHistorial(){
 
   let html = `
     <div class="header">
-      <div class="col" id="colFecha">Fecha</div>
-      <div class="col" id="colTipo">Tipo</div>
-      <div class="col" id="colMonto">Monto</div>
-      <div class="col" id="colCuenta">Cuenta</div>
-      <div class="col" id="colDescripcion">Detalle</div>
+      <div class="col">Fecha</div>
+      <div class="col">Tipo</div>
+      <div class="col">Monto</div>
+      <div class="col">Cuenta</div>
+      <div class="col">Detalle</div>
     </div>
   `
 
   if(data.length === 0){
     html += `<div class="empty">No hay movimientos</div>`
   }else{
-
     data.forEach(m => {
 
       const fecha = formatearFecha(m.fecha)
@@ -233,15 +271,15 @@ async function cargarHistorial(){
       const monto = (m.monto / 100).toFixed(2)
 
       const esIngreso = m.tipo === "ingreso"
-      const montoFinal = `${esIngreso ? "+" : "-"}${monto} BOB`
+      const montoFinal = `${esIngreso ? "+" : "-"}${monto} ${m.moneda}`
 
       html += `
         <div class="movimiento ${m.tipo}">
-          <span class="col fecha">${fecha}</span>
-          <span class="col tipo">${m.tipo.toUpperCase()}</span>
-          <span class="col monto">${montoFinal}</span>
-          <span class="col cuenta">${cuenta}</span>
-          <span class="col descripcion">${m.descripcion || ""}</span>
+          <span class="col">${fecha}</span>
+          <span class="col">${m.tipo.toUpperCase()}</span>
+          <span class="col">${montoFinal}</span>
+          <span class="col">${cuenta}</span>
+          <span class="col">${m.descripcion || ""}</span>
         </div>
       `
     })
@@ -286,23 +324,37 @@ function cambiarPagina(direccion){
 ========================= */
 async function calcularBalance(){
 
+  const { tipo, moneda } = getFiltrosHistorial()
+
   let query = supabaseClient
     .from("movimientos")
-    .select("tipo, monto, fecha, cuentas!inner(categoria)")
+    .select(`
+      tipo,
+      monto,
+      moneda,
+      cuentas!inner(categoria)
+    `)
 
+  // ===== FILTRO TIEMPO =====
   query = aplicarFiltroTiempo(query)
 
-  if(filtroTipo === "ingreso"){
+  // ===== FILTRO TIPO =====
+  if(tipo === "ingreso"){
     query = query.eq("tipo", "ingreso")
   }
 
-  if(filtroTipo === "gasto"){
+  if(tipo === "gasto"){
     query = query.eq("tipo", "gasto")
   }
 
-  if(filtroTipo === "ahorro"){
+  if(tipo === "ahorro"){
     query = query.eq("tipo", "ingreso")
     query = query.eq("cuentas.categoria", "ahorro")
+  }
+
+  // ===== FILTRO MONEDA =====
+  if(moneda !== "todas"){
+    query = query.eq("moneda", moneda)
   }
 
   const { data, error } = await query
@@ -312,27 +364,61 @@ async function calcularBalance(){
     return
   }
 
-  let ingresos = 0
-  let gastos = 0
-
-  data.forEach(m => {
-    if(m.tipo === "ingreso") ingresos += m.monto
-    else gastos += m.monto
-  })
-
-  const balance = ingresos - gastos
-  const el = document.getElementById('balanceMensual')
-
-  if(filtroTipo === "ahorro"){
-    el.innerText = `Ahorros: ${(ingresos / 100).toFixed(2)}`
-  }else{
-    el.innerText = `Balance: ${(balance / 100).toFixed(2)}`
+  // ===== SIN DATOS =====
+  if(!data || data.length === 0){
+    document.getElementById("balanceMensual").innerHTML = `
+      <div class="empty">Sin datos</div>
+    `
+    return
   }
 
-  el.style.color =
-    balance > 0 ? "#00c853" :
-    balance < 0 ? "#ff5252" :
-    "#000000"
+  // ===== AGRUPAR =====
+  let totales = {}
+
+  data.forEach(m => {
+
+    if(!totales[m.moneda]){
+      totales[m.moneda] = { ingresos: 0, gastos: 0 }
+    }
+
+    if(m.tipo === "ingreso"){
+      totales[m.moneda].ingresos += m.monto
+    }else{
+      totales[m.moneda].gastos += m.monto
+    }
+  })
+
+  // ===== RENDER =====
+  let html = ""
+
+  Object.keys(totales).forEach(moneda => {
+
+    const ingresos = totales[moneda].ingresos
+    const gastos = totales[moneda].gastos
+    const balance = ingresos - gastos
+
+    let color = "#000"
+    if(balance > 0) color = "#00c853"
+    if(balance < 0) color = "#ff5252"
+
+    if(tipo === "ahorro"){
+      if(ingresos === 0) return
+
+      html += `
+        <div style="color:${color}; font-weight:bold">
+          Ahorros: ${(ingresos/100).toFixed(2)} ${moneda}
+        </div>
+      `
+    }else{
+      html += `
+        <div style="color:${color}; font-weight:bold">
+          Balance: ${(balance/100).toFixed(2)} ${moneda}
+        </div>
+      `
+    }
+  })
+
+  document.getElementById("balanceMensual").innerHTML = html
 }
 
 
@@ -340,20 +426,31 @@ async function calcularBalance(){
    GUARDAR
 ========================= */
 async function guardarMovimiento(){
-
+  
   const cuentaSelect = document.getElementById("cuenta")
   const cuentaId = Number(cuentaSelect.value)
   const categoriaCuenta = cuentaSelect.options[cuentaSelect.selectedIndex].dataset.categoria
 
   const montoInput = Number(document.getElementById("monto").value)
   const categoria = document.getElementById("categoria").value
+  const moneda = document.getElementById("moneda").value
   const descripcion = document.getElementById("descripcion").value
+
 
   if(!cuentaId){
     alert("Selecciona una cuenta")
     return
   }
-
+  
+  if(!categoria){
+	alert("Seleccione una categoria")
+	return
+  }
+  
+  if(!moneda){
+	alert("Seleccione una moneda")
+	return
+  }
   if(!montoInput || montoInput <= 0){
     alert("Monto inválido")
     return
@@ -366,7 +463,7 @@ async function guardarMovimiento(){
 
   const monto = Math.round(montoInput * 100)
   const inputFecha = document.getElementById("fecha").value
-  const fecha = inputFecha || new Date().toISOString().split("T")[0]
+  const fecha = inputFecha || obtenerFechaLocal()
 
   const { error } = await supabaseClient
     .from("movimientos")
@@ -376,7 +473,8 @@ async function guardarMovimiento(){
       cuenta_id: cuentaId,
       fecha,
       categoria,
-      descripcion
+      descripcion,
+      moneda
     }])
 
   if(error){
@@ -388,7 +486,8 @@ async function guardarMovimiento(){
 
   const { error: errorRPC } = await supabaseClient.rpc(rpc, {
     id_cuenta: cuentaId,
-    monto
+    monto,
+    moneda_param: moneda
   })
 
   if(errorRPC){
@@ -401,4 +500,54 @@ async function guardarMovimiento(){
   cargarCuentas()
   cargarHistorial()
   calcularBalance()
+}
+
+
+function cargarMonedasPorCuenta(){
+
+  const cuentaSelect = document.getElementById("cuenta")
+  const monedaSelect = document.getElementById("moneda")
+
+  const cuentaId = cuentaSelect.value
+
+  // 🔴 si no hay cuenta → deshabilitar
+  if(!cuentaId){
+    monedaSelect.innerHTML = `<option value="" disabled selected hidden>Seleccionar moneda</option>`
+    monedaSelect.disabled = true
+    return
+  }
+
+  // 🟢 habilitar
+  monedaSelect.disabled = false
+
+  const cuenta = cuentasGlobal.find(c => c.id == cuentaId)
+  if(!cuenta) return
+
+  let options = `<option value="" disabled selected hidden>Seleccionar moneda</option>`
+
+  // 🔥 CASO INGRESO vs GASTO
+  if(tipoActual === "ingreso"){
+    // 👇 TODAS LAS MONEDAS DISPONIBLES DEL SISTEMA
+    const monedasUnicas = new Set()
+
+    cuentasGlobal.forEach(c => {
+      if(c.saldos){
+        c.saldos.forEach(s => monedasUnicas.add(s.moneda))
+      }
+    })
+
+    monedasUnicas.forEach(m => {
+      options += `<option value="${m}">${m}</option>`
+    })
+
+  }else{
+    // 👇 SOLO monedas de la cuenta (gasto)
+    if(!cuenta.saldos) return
+
+    cuenta.saldos.forEach(s => {
+      options += `<option value="${s.moneda}">${s.moneda}</option>`
+    })
+  }
+
+  monedaSelect.innerHTML = options
 }

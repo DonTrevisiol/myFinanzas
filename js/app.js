@@ -1,27 +1,20 @@
 /* ./myFinanzas/js/app.js */
-
 document.addEventListener("DOMContentLoaded", () => {
   setEvents()
   initApp()
 })
 
-/* =========================
-   INIT
-========================= */
 async function initApp(){
   const session = await checkSession()
 
   if(session){
     mostrarApp()
-    cargarCuentas()
+    await cargarCuentas()
   }else{
     mostrarLogin()
   }
 }
 
-/* =========================
-   EVENTOS
-========================= */
 function setEvents(){
 
   // AUTH
@@ -40,23 +33,27 @@ function setEvents(){
     calcularBalance()
   })
 
-  // FILTROS (NUEVOS SELECTS)
+  // ===== DASHBOARD FILTROS =====
+  document.getElementById("filtroTipoCuenta")?.addEventListener("change", cargarCuentas)
+  document.getElementById("filtroCategoriaCuenta")?.addEventListener("change", cargarCuentas)
+  document.getElementById("filtroMonedaCuenta")?.addEventListener("change", cargarCuentas)
 
+  // ===== HISTORIAL FILTROS =====
   document.getElementById("filtroTiempo")?.addEventListener("change", (e) => {
     filtroTiempo = e.target.value
     paginaActual = 0
-
-    const custom = document.getElementById("rangoCustom")
-    if(custom){
-      custom.style.display = filtroTiempo === "custom" ? "block" : "none"
-    }
-
     cargarHistorial()
     calcularBalance()
   })
 
   document.getElementById("filtroTipo")?.addEventListener("change", (e) => {
     filtroTipo = e.target.value
+    paginaActual = 0
+    cargarHistorial()
+    calcularBalance()
+  })
+
+  document.getElementById("filtroMonedaHistorial")?.addEventListener("change", () => {
     paginaActual = 0
     cargarHistorial()
     calcularBalance()
@@ -77,21 +74,14 @@ function setEvents(){
   // MOVIMIENTOS
   document.getElementById("btnIngreso")?.addEventListener("click", () => abrirModal("ingreso"))
   document.getElementById("btnGasto")?.addEventListener("click", () => abrirModal("gasto"))
-
+  document.getElementById("cuenta")?.addEventListener("change", cargarMonedasPorCuenta)
   document.getElementById("btnGuardarMov")?.addEventListener("click", guardarMovimiento)
 }
 
-/* =========================
-   VISTAS
-========================= */
 function mostrarVista(vista){
-  const vistas = ["viewDashboard", "viewHistorial"]
-
-  vistas.forEach(v => {
+  ["viewDashboard","viewHistorial"].forEach(v => {
     const el = document.getElementById(v)
     if(el) el.style.display = "none"
   })
-
-  const activa = document.getElementById(vista)
-  if(activa) activa.style.display = "block"
+  document.getElementById(vista).style.display = "block"
 }

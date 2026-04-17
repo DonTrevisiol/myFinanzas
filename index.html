@@ -41,8 +41,25 @@
   <div id="viewDashboard">
 
     <div class="card total" id="totalContainer">
-      TOTAL: <span id="total">0</span>
+      TOTAL: <span id="total"></span>
     </div>
+    <div id="filtrosDashboard" class="card">
+		<select id="filtroTipoCuenta">
+			<option value="todos">Todos los tipos</option>
+			<option value="efectivo">Efectivo</option>
+			<option value="digital">Digital</option>
+		</select>
+
+		<select id="filtroCategoriaCuenta">
+			<option value="todos">Todas las categorías</option>
+			<option value="ahorro">Ahorro</option>
+			<option value="normal">Corriente</option>
+		</select>
+
+		<select id="filtroMonedaCuenta">
+			<option value="todas">Todas las monedas</option>
+		</select>
+	</div>
 	<div class="headerCuentas">
 		<div class="cuentaName">Cuenta</div>
         <div class="cuentaType">Tipo</div>
@@ -83,6 +100,11 @@
 			<option value="gasto">Gastos</option>
 			<option value="ahorro">Ahorros</option>
 		</select>
+		
+	<!-- MONEDA -->
+	<select id="filtroMonedaHistorial">
+		<option value="todas"></option>
+	</select>
 
 	</div>
     <h2><div id="balanceMensual"></div></h2>
@@ -98,8 +120,12 @@
     <h3 id="modalTitle"></h3>
 
     <select id="cuenta"></select>
+    <select id="moneda">
+      <option value="" disabled selected hidden>Seleccionar moneda</option>
+    </select>
     <input id="monto" type="number" placeholder="Monto">
-    <select id="categoria"></select>
+    <select id="categoria" required>    
+    </select>
     <input id="descripcion" placeholder="Detalle">
     <input id="fecha" type="date">
 

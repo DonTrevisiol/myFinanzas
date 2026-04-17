@@ -13,17 +13,18 @@ h1{
 }
 
 .card{
-  background: #d0d0d7;
   padding: 15px;
   border-radius: 10px;
   margin-bottom: 10px;
   text-align: center;
 }
 
-.total{
+#totalContainer{
   background-color: #8A8A8C;
   font-size: 20px;
   font-weight: bold;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 .cuenta {
@@ -31,17 +32,32 @@ h1{
   grid-template-columns: 1fr 1fr 1fr; /* igual que header */
   gap: 10px;
   padding: 10px;
-  background: #d0d0d7;
-  
-
-  color: #FCF00D;
+  font-size: 20px;
   font-weight: bold;
-  text-shadow: 2px 2px 4px #c4430b;
-  font-family: 'Playfair Display', serif;
   text-align: center;
   white-space: nowrap;
+  font-family: 'Playfair Display', serif;
 }
 
+/*	EFECTIVO (DORADO) */
+.cuenta.efectivo {
+  background: #d0d0d7;
+  color: #FCF00D;
+  text-shadow: 2px 2px 4px #c4430b;
+}
+/*	DIGITAL (VERDE) */
+.cuenta.digital {
+  background: #d0d0d7;
+  color: #16a34a;
+  text-shadow: 1px 1px 2px #000;
+}
+/*	AHORRO (GRIS) */
+.cuenta.ahorro {
+  background: #bdbdbd;
+  color: #555;
+  text-shadow: none;
+  opacity: 0.8;
+}
 .actions{
   display: flex;
   gap: 10px;
@@ -173,13 +189,13 @@ h1{
   white-space: normal;
   word-break: break-word;
 }
-
-.cuenta.ahorro {
-  background: #bdbdbd;
-  color: #555;
-  text-shadow: none;
-  opacity: 0.8;
+#btnIngreso:hover{
+  background: #16a34a;
 }
+#btnGasto:hover{
+  background: #dc2626;
+}
+
 #cashCuentas{
   font-size: 30px
 }
@@ -222,7 +238,12 @@ h1{
     display: block;
     padding: 2px 0;
   }
-
+  #btnIngreso{
+    background: #16a34a;
+  }
+  #btnGasto{
+    background: #dc2626;
+  }
   /* fila principal */
   .movimiento .fecha{
     font-weight: bold;
@@ -239,7 +260,8 @@ h1{
   }
 
   .movimiento .cuenta{
-    font-size: 14px;
+    font-size: 25px;
+    text-shadow: 4px 4px 6px #000000;
     opacity: 0.7;
   }
 
