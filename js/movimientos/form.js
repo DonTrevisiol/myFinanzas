@@ -18,6 +18,11 @@ export async function guardarMovimiento(){
   const descripcion = document.getElementById("descripcion").value;
 
   // ===== VALIDACIONES =====
+  if(state.editandoId){
+	await actualizarMovimiento()
+	return;
+  }
+  
   if(!cuentaId){
     alert("Selecciona una cuenta");
     return;
@@ -84,4 +89,34 @@ export async function guardarMovimiento(){
   cargarCuentas();
   cargarHistorial();
   calcularBalance();
+}
+
+async function actualizarMovimiento(){
+
+  const id = state.editandoId;
+
+  const { data: original } = await supabaseClient
+    .from("movimientos")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  // revertir saldo original
+  const rpcRevert = original.tipo === "ingreso" ? "restar_saldo" : "sumar_saldo";
+
+  await supabaseClient.rpc(rpcRevert, {
+    id_cuenta: original.cuenta_id,
+    monto: original.monto,
+    moneda_param: original.moneda
+  });
+
+  // eliminar original
+  await supabaseClient
+    .from("movimientos")
+    .delete()
+    .eq("id", id);
+
+  // guardar nuevo (usa la función actual)
+  state.editandoId = null;
+  await guardarMovimiento();
 }

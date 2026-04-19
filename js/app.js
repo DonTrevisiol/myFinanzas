@@ -66,6 +66,16 @@ function setEvents(){
   calcularBalance()
 })
 
+  document.getElementById("btnOrden")?.addEventListener("click", () => {
+  state.ordenAscendente = !state.ordenAscendente;
+
+  const btn = document.getElementById("btnOrden");
+  btn.textContent = state.ordenAscendente ? "⬆️" : "⬇️";
+
+  state.paginaActual = 0;
+  cargarHistorial();
+});
+
   document.getElementById("filtroTipo")?.addEventListener("change", (e) => {
     state.filtroTipo = e.target.value
     state.paginaActual = 0

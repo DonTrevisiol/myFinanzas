@@ -29,7 +29,7 @@ h1{
 
 .cuenta {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr; /* igual que header */
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr; /* igual que header */
   gap: 10px;
   padding: 10px;
   font-size: 20px;
@@ -39,6 +39,66 @@ h1{
   font-family: 'Playfair Display', serif;
 }
 
+/* ===== SELECT MONEDA CUSTOM ===== */
+
+.monedaWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.selectorMoneda {
+  background: transparent;
+  border: none;
+  font: inherit;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  padding-right: 2px;
+}
+
+.selectorMoneda:focus {
+  outline: none;
+}
+.cuenta.efectivo .selectorMoneda {
+  color: #FCF00D;
+  text-shadow: 2px 2px 4px #c4430b;
+}
+
+.cuenta.digital .selectorMoneda {
+  color: #16a34a;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.cuenta.ahorro .selectorMoneda {
+  color: #555;
+  text-shadow: none;
+}
+.nombreCuenta {
+  position: relative;
+}
+
+/* marcador multimoneda */
+.multiMark {
+  margin-left: 5px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+/* colores heredados automáticamente */
+.cuenta.efectivo .multiMark {
+  color: #FCF00D;
+  text-shadow: 2px 2px 4px #c4430b;
+}
+
+.cuenta.digital .multiMark {
+  color: #16a34a;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.cuenta.ahorro .multiMark {
+  color: #555;
+  text-shadow: none;
+}
 /*	EFECTIVO (DORADO) */
 .cuenta.efectivo {
   background: #d0d0d7;
@@ -136,7 +196,7 @@ h1{
 
 .headerCuentas {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr; /* 🔥 flexible */
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr; /* 🔥 flexible */
   gap: 10px;
   padding: 10px;
   background: #8a8a8c;

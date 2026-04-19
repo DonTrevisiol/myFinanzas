@@ -3,6 +3,8 @@
 import { buildQuery } from "./queryBuilder.js";
 import { formatearFecha } from "./utils.js";
 import { state } from "./state.js";
+import { abrirModal, cargarMonedasPorCuenta } from "./modal.js";
+import { calcularBalance } from "./balance.js";
 
 /* =========================
    HISTORIAL
@@ -30,14 +32,16 @@ export async function cargarHistorial(){
   query = buildQuery(query);
 
   // ===== ORDEN =====
+  const asc = state.ordenAscendente;
+
   if(state.filtroTiempo === "recientes"){
     query = query
-      .order("created_at", { ascending: false })
-      .order("id", { ascending: false });
+      .order("created_at", { ascending: asc })
+      .order("id", { ascending: asc });
   }else{
     query = query
-      .order("fecha", { ascending: false })
-      .order("id", { ascending: false });
+      .order("fecha", { ascending: asc })
+      .order("id", { ascending: asc });
   }
 
   // ===== PAGINACIÓN (pedimos 1 extra) =====
@@ -86,18 +90,32 @@ export async function cargarHistorial(){
       const montoFinal = `${esIngreso ? "+" : "-"}${monto} ${m.moneda}`;
 
       html += `
-        <div class="movimiento ${m.tipo}">
-          <span class="col">${fecha}</span>
-          <span class="col">${m.tipo.toUpperCase()}</span>
-          <span class="col">${montoFinal}</span>
-          <span class="col">${cuenta}</span>
-          <span class="col">${m.descripcion || ""}</span>
-        </div>
-      `;
+		<div class="movimiento ${m.tipo}">
+			<span class="col">${fecha}</span>
+			<span class="col">${m.tipo.toUpperCase()}</span>
+			<span class="col">${montoFinal}</span>
+			<span class="col">${cuenta}</span>
+			<span class="col">${m.descripcion || ""}</span>
+			<div>
+				<button class="btnEdit" data-id="${m.id}">✏️</button>
+				<button class="btnDelete" data-id="${m.id}">🗑️</button>
+			</div>
+			
+		</div>
+		`;
     });
   }
 
   document.getElementById("historial").innerHTML = html;
+  // eventos EDIT
+  document.querySelectorAll(".btnEdit").forEach(btn => {
+    btn.addEventListener("click", () => editarMovimiento(btn.dataset.id));
+  });
+
+  // eventos DELETE
+  document.querySelectorAll(".btnDelete").forEach(btn => {
+    btn.addEventListener("click", () => eliminarMovimiento(btn.dataset.id));
+  });
 
   renderPaginacion();
 }
@@ -136,3 +154,68 @@ export function cambiarPagina(direccion){
 
   cargarHistorial()
 }
+
+/* =========================
+   EDICIÓN
+========================= */
+async function editarMovimiento(id){
+
+  const { data: mov } = await supabaseClient
+    .from("movimientos")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  state.editandoId = id;
+  state.tipoActual = mov.tipo;
+
+  abrirModal(mov.tipo);
+
+  document.getElementById("cuenta").value = mov.cuenta_id;
+  document.getElementById("monto").value = mov.monto / 100;
+  document.getElementById("descripcion").value = mov.descripcion || "";
+  document.getElementById("fecha").value = mov.fecha;
+
+  cargarMonedasPorCuenta();
+  document.getElementById("moneda").value = mov.moneda;
+}
+
+/* =========================
+   ELIMINACIÓN
+========================= */
+async function eliminarMovimiento(id){
+	
+  const ok = confirm("¿ELIMINAR MOVIMIENTO?");
+  if(!ok) return;
+
+  const { data: mov } = await supabaseClient
+    .from("movimientos")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if(!mov){
+    alert("Error");
+    return;
+  }
+
+  // revertir saldo
+  const rpc = mov.tipo === "ingreso" ? "restar_saldo" : "sumar_saldo";
+
+  await supabaseClient.rpc(rpc, {
+    id_cuenta: mov.cuenta_id,
+    monto: mov.monto,
+    moneda_param: mov.moneda
+  });
+
+  // borrar
+  await supabaseClient
+    .from("movimientos")
+    .delete()
+    .eq("id", id);
+
+  cargarHistorial();
+  calcularBalance();
+  cargarCuentas();
+}
+

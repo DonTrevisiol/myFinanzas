@@ -55,25 +55,63 @@ data.forEach(c => {
     // 🔥 IMPORTANTE: validar array real
     if(!c.saldos || c.saldos.length === 0) return
 
-    c.saldos.forEach(s => {
+    // 🔥 FILTRAR SALDOS POR MONEDA
+	let saldosFiltrados = c.saldos.filter(s => {
+	if(filtroMoneda !== "todas" && s.moneda !== filtroMoneda) return false
+	return true
+	})
 
-      if(filtroMoneda !== "todas" && s.moneda !== filtroMoneda) return
+	// si no hay saldos después del filtro → no mostrar cuenta
+	if(saldosFiltrados.length === 0) return
 
-      monedasSet.add(s.moneda)
+	// ===== TOTALES =====
+	saldosFiltrados.forEach(s => {
+	if(!totales[s.moneda]) totales[s.moneda] = 0
+	totales[s.moneda] += s.saldo
+	})
 
-      if(!totales[s.moneda]) totales[s.moneda] = 0
-      totales[s.moneda] += s.saldo
+	// ===== RENDER =====
+	if(saldosFiltrados.length === 1){
 
-      html += `
-        <div class="card cuenta ${c.categoria === "ahorro" ? "ahorro" : "normal"} ${c.tipo === "digital" ? "digital" : "efectivo"}">
-          <span>${c.nombre}</span>
-          <span>${c.tipo}</span>
-          <span>${c.categoria}</span>
-          <span>${s.moneda}</span>
-          <span>${(s.saldo / 100).toFixed(2)}</span>
-        </div>
-      `
-    })
+	const s = saldosFiltrados[0]
+
+	html += `
+    <div class="card cuenta ${c.categoria === "ahorro" ? "ahorro" : "normal"} ${c.tipo === "digital" ? "digital" : "efectivo"}">
+      <span>${c.nombre}</span>
+      <span>${c.tipo}</span>
+      <span>${c.categoria}</span>
+      <span>${s.moneda}</span>
+      <span>${(s.saldo / 100).toFixed(2)}</span>
+    </div>
+  `
+
+	}else{
+
+html += `
+<div class="card cuenta ${c.categoria === "ahorro" ? "ahorro" : "normal"} ${c.tipo === "digital" ? "digital" : "efectivo"}">
+
+  <span class="nombreCuenta">${c.nombre}<span class="multiMark">*</span></span>
+  <span>${c.tipo}</span>
+  <span>${c.categoria}</span>
+
+  <div class="monedaWrapper">
+    <select class="selectorMoneda" data-id="${c.id}">
+    
+      ${saldosFiltrados.map(s => `
+        <option value="${s.moneda}">
+          ${s.moneda}
+        </option>
+      `).join("")}
+    </select>
+  </div>
+
+  <span id="saldo-${c.id}">
+    ${(saldosFiltrados[0].saldo / 100).toFixed(2)}
+  </span>
+
+</div>
+`
+}
 
     options += `<option value="${c.id}" data-categoria="${c.categoria}">${c.nombre}</option>`
   })
@@ -102,6 +140,24 @@ data.forEach(c => {
 
   document.getElementById("total").innerHTML = totalHTML || "0"
   document.getElementById("cuentas").innerHTML = html
+  
+  document.querySelectorAll(".selectorMoneda").forEach(select => {
+
+  select.addEventListener("change", () => {
+
+    const cuentaId = select.dataset.id
+    const moneda = select.value
+
+    const cuenta = cuentasGlobal.find(c => c.id == cuentaId)
+
+    const saldo = cuenta.saldos.find(s => s.moneda === moneda)
+
+    document.getElementById(`saldo-${cuentaId}`).innerText =
+      (saldo.saldo / 100).toFixed(2)
+
+  })
+
+})
   document.getElementById("cuenta").innerHTML =
     `<option value="" disabled selected hidden>Seleccionar cuenta</option>${options}`
 
@@ -122,3 +178,4 @@ data.forEach(c => {
     filtroHist.innerHTML = opcionesMoneda
   }
 }
+

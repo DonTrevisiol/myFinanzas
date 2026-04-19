@@ -13,7 +13,10 @@ export const state = {
   fechaDesde: null,
   fechaHasta: null,
   filtroTipo: "todos",
-  modoOrden: "fecha"
+  modoOrden: "fecha",
+  ordenAscendente: false,
+  
+  editandoId: null
 }
 
 export const catMov = {
