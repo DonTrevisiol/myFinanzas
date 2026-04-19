@@ -41,23 +41,31 @@ h1{
 
 /* ===== SELECT MONEDA CUSTOM ===== */
 
-.monedaWrapper {
-  position: relative;
-  display: inline-block;
-}
-
+/* selector limpio */
 .selectorMoneda {
   background: transparent;
   border: none;
   font: inherit;
   font-weight: bold;
-  text-align: center;
   cursor: pointer;
-  padding-right: 2px;
+  appearance: none; /* 🔥 elimina estilos raros mobile */
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
 .selectorMoneda:focus {
   outline: none;
+}
+.col-divisa {
+  display: inline-flex; /* 🔥 NO flex normal */
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap; /* 🔥 evita salto de línea */
+}
+.icono-moneda {
+  font-size: 16px;
+  line-height: 1;
 }
 .cuenta.efectivo .selectorMoneda {
   color: #FCF00D;
@@ -77,25 +85,18 @@ h1{
   position: relative;
 }
 
-/* marcador multimoneda */
-.multiMark {
-  margin-left: 5px;
-  font-size: 22px;
-  font-weight: bold;
-}
-
 /* colores heredados automáticamente */
-.cuenta.efectivo .multiMark {
+.cuenta.efectivo {
   color: #FCF00D;
   text-shadow: 2px 2px 4px #c4430b;
 }
 
-.cuenta.digital .multiMark {
+.cuenta.digital {
   color: #16a34a;
   text-shadow: 1px 1px 2px #000;
 }
 
-.cuenta.ahorro .multiMark {
+.cuenta.ahorro {
   color: #555;
   text-shadow: none;
 }
@@ -269,6 +270,19 @@ h1{
   font-style: italic;
 }
 
+/* hereda color según tipo de cuenta */
+.cuenta.efectivo .multi-icon svg {
+  fill: #FCF00D;
+}
+
+.cuenta.digital .multi-icon svg {
+  fill: #16a34a;
+}
+
+.cuenta.ahorro .multi-icon svg {
+  fill: #555;
+  opacity: 0.7;
+}
 
 /* =========================
    RESPONSIVE (MOBILE)
@@ -292,6 +306,7 @@ h1{
     margin-bottom: 10px;
     border-radius: 10px;
     padding: 10px;
+    background: #d0d0d7;
   }
 
   .col{
@@ -329,6 +344,48 @@ h1{
     margin-top: 5px;
     font-style: italic;
   }
+  
+  .cuenta {
+    grid-template-columns: 1fr 1fr;
+    font-size: 16px;
+    text-align: left;
+    row-gap: 5px;
+  }
 
+  .headerCuentas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    font-size: 14px;
+    text-align: left;
+    padding: 8px;
+  }
+  .cuentaType {
+	display: none;
+  }
+  .cuentaCash {
+	display: none;
+  }
+  .cuentaMonto {
+	display: none;
+  }
+
+  .cuenta span,
+  .cuenta select {
+    display: block;
+    width: 100%;
+  }
+
+  .cuenta span:nth-child(1){
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .col-divisa {
+    justify-content: flex-start; /* alineado a la izquierda */
+  }
+
+  .selectorMoneda {
+    width: auto; /* 🔥 evita que se estire */
+  }
 }
 

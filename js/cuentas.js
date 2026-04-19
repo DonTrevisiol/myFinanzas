@@ -90,21 +90,23 @@ data.forEach(c => {
 html += `
 <div class="card cuenta ${c.categoria === "ahorro" ? "ahorro" : "normal"} ${c.tipo === "digital" ? "digital" : "efectivo"}">
 
-  <span class="nombreCuenta">${c.nombre}<span class="multiMark">*</span></span>
+  <span>${c.nombre}</span>
   <span>${c.tipo}</span>
   <span>${c.categoria}</span>
 
-  <div class="monedaWrapper">
-    <select class="selectorMoneda" data-id="${c.id}">
-    
-      ${saldosFiltrados.map(s => `
-        <option value="${s.moneda}">
-          ${s.moneda}
-        </option>
-      `).join("")}
-    </select>
-  </div>
+  <!-- COLUMNA DIVISA -->
+  <span class="col-divisa">
+  <span class="icono-moneda">💱</span>
+  <select class="selectorMoneda" data-id="${c.id}">
+    ${saldosFiltrados.map(s => `
+      <option value="${s.moneda}">
+        ${s.moneda}
+      </option>
+    `).join("")}
+  </select>
+</span>
 
+  <!-- COLUMNA MONTO -->
   <span id="saldo-${c.id}">
     ${(saldosFiltrados[0].saldo / 100).toFixed(2)}
   </span>
