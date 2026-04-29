@@ -38,7 +38,9 @@ h1{
   white-space: nowrap;
   font-family: 'Playfair Display', serif;
 }
-
+.cuenta-bloqueada {
+  color: #999;
+}
 /* ===== SELECT MONEDA CUSTOM ===== */
 
 /* selector limpio */
@@ -369,8 +371,7 @@ h1{
 	display: none;
   }
 
-  .cuenta span,
-  .cuenta select {
+  .cuenta span {
     display: block;
     width: 100%;
   }

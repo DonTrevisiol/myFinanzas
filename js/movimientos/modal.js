@@ -2,99 +2,125 @@
 
 import { catMov, state } from "./state.js";
 import { obtenerFechaLocal } from "./utils.js";
+import { cargarCuentas } from "../cuentas.js"
 
 /* =========================
    MODAL
 ========================= */
 export function cargarCategorias(){
-  const select = document.getElementById("categoria");
-  select.innerHTML = "";
 
-  catMov[state.tipoActual].forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
-    select.appendChild(opt);
-  });
+  const select = document.getElementById("categoria")
+  select.innerHTML = ""
+
+  // 🔥 evitar error en transferencia
+  if(state.tipoActual === "transferencia"){
+    select.style.display = "none"
+    return
+  }
+
+  select.style.display = "block"
+
+  const categorias = catMov[state.tipoActual] || []
+
+  categorias.forEach(cat => {
+    const opt = document.createElement("option")
+    opt.value = cat
+    opt.textContent = cat
+    select.appendChild(opt)
+  })
 }
 
 export function abrirModal(tipo){
-  state.tipoActual = tipo;
+  state.tipoActual = tipo
+  state.esTransferencia = (tipo === "transferencia") // 🔥
 
-  document.getElementById("cuenta").selectedIndex = 0;
+  document.getElementById("cuenta").selectedIndex = 0
 
-  const modal = document.getElementById("modal");
-  modal.style.display = "block";
+  const modal = document.getElementById("modal")
+  modal.style.display = "block"
 
-  const monedaSelect = document.getElementById("moneda");
-  monedaSelect.disabled = true;
+  const monedaSelect = document.getElementById("moneda")
+  monedaSelect.disabled = true
 
-  document.getElementById("modalTitle").innerText = tipo.toUpperCase();
+  document.getElementById("modalTitle").innerText = tipo.toUpperCase()
 
-  modal.classList.remove("modal-ingreso", "modal-gasto");
-  modal.classList.add(tipo === "ingreso" ? "modal-ingreso" : "modal-gasto");
+  modal.classList.remove("modal-ingreso", "modal-gasto")
+  
+  if(state.esTransferencia){
+    document.getElementById("categoria").style.display = "none"
+  }else{
+    document.getElementById("categoria").style.display = "block"
+  }
 
-  const selectCuenta = document.getElementById("cuenta");
+  if(tipo === "ingreso"){
+    modal.classList.add("modal-ingreso")
+  }else if(tipo === "gasto"){
+    modal.classList.add("modal-gasto")
+  }
 
-  Array.from(selectCuenta.options).forEach(opt => {
-    const esAhorro = opt.dataset.categoria === "ahorro";
-    opt.disabled = (tipo === "gasto" && esAhorro);
-  });
+  // 🔥 MOSTRAR / OCULTAR CUENTA DESTINO
+  const cuentaDestino = document.getElementById("cuentaDestino")
+  cuentaDestino.style.display = state.esTransferencia ? "block" : "none"
 
-  const inputFecha = document.getElementById("fecha");
-  inputFecha.value = obtenerFechaLocal();
+  const inputFecha = document.getElementById("fecha")
+  inputFecha.value = obtenerFechaLocal()
 
   document.getElementById("moneda").innerHTML =
-    `<option value="" disabled selected hidden>Seleccionar moneda</option>`;
+    `<option value="" disabled selected hidden>Seleccionar moneda</option>`
 
-  cargarCategorias();
-  cargarMonedasPorCuenta();
+  cargarCategorias()
+  cargarMonedasPorCuenta()
+  cargarCuentas()
 }
 
 export function cerrarModal(){
   document.getElementById("modal").style.display = "none";
+  cargarCuentas()
 }
 
 export function cargarMonedasPorCuenta(){
 
-  const cuentaSelect = document.getElementById("cuenta");
-  const monedaSelect = document.getElementById("moneda");
+  const cuentaSelect = document.getElementById("cuenta")
+  const monedaSelect = document.getElementById("moneda")
 
-  const cuentaId = cuentaSelect.value;
+  const cuentaId = cuentaSelect.value
 
   if(!cuentaId){
-    monedaSelect.innerHTML = `<option value="" disabled selected hidden>Seleccionar moneda</option>`;
-    monedaSelect.disabled = true;
-    return;
+    monedaSelect.innerHTML = `<option value="" disabled selected hidden>Seleccionar moneda</option>`
+    monedaSelect.disabled = true
+    return
   }
 
-  monedaSelect.disabled = false;
+  const cuenta = cuentasGlobal.find(c => c.id == cuentaId)
+  if(!cuenta) return
 
-  const cuenta = cuentasGlobal.find(c => c.id == cuentaId);
-  if(!cuenta) return;
+  let options = `<option value="" disabled selected hidden>Seleccionar moneda</option>`
 
-  let options = `<option value="" disabled selected hidden>Seleccionar moneda</option>`;
+  // 🔥 SI NO TIENE SALDOS
+  if(!cuenta.saldos || cuenta.saldos.length === 0){
 
-  if(state.tipoActual === "ingreso"){
-    const monedasUnicas = new Set();
+    const monedasUnicas = new Set()
 
     cuentasGlobal.forEach(c => {
       if(c.saldos){
-        c.saldos.forEach(s => monedasUnicas.add(s.moneda));
+        c.saldos.forEach(s => monedasUnicas.add(s.moneda))
       }
-    });
+    })
 
     monedasUnicas.forEach(m => {
-      options += `<option value="${m}">${m}</option>`;
-    });
+      options += `<option value="${m}">${m}</option>`
+    })
 
   }else{
-    if(!cuenta.saldos) return;
 
     cuenta.saldos.forEach(s => {
-      options += `<option value="${s.moneda}">${s.moneda}</option>`;
-    });
+      options += `<option value="${s.moneda}">${s.moneda}</option>`
+    })
+
   }
 
-  monedaSelect.innerHTML = options;
+  monedaSelect.innerHTML = options
+
+  // 🔥 ESTO ES LO QUE TE FALTA
+  monedaSelect.disabled = false
 }

@@ -3,6 +3,7 @@
 import { cargarHistorial } from "./movimientos/historial.js"
 import { calcularBalance } from "./movimientos/balance.js"
 import { guardarMovimiento } from "./movimientos/form.js"
+import { cargarCuentas } from "./cuentas.js"
 import { cargarMonedasPorCuenta, abrirModal, cerrarModal } from "./movimientos/modal.js"
 import { state } from "./movimientos/state.js"
 import { mostrarApp, mostrarLogin } from "./ui.js"
@@ -104,6 +105,7 @@ function setEvents(){
   // ===== MOVIMIENTOS =====
   document.getElementById("btnIngreso")?.addEventListener("click", () => abrirModal("ingreso"))
   document.getElementById("btnGasto")?.addEventListener("click", () => abrirModal("gasto"))
+  document.getElementById("btnTransferencia")?.addEventListener("click", () => abrirModal("transferencia"))
   document.getElementById("cuenta")?.addEventListener("change", cargarMonedasPorCuenta)
   document.getElementById("btnGuardarMov")?.addEventListener("click", guardarMovimiento)
   document.getElementById("btnCerrarModal")?.addEventListener("click", cerrarModal)

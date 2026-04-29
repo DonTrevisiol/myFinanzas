@@ -4,6 +4,7 @@
 ========================= */
 export const state = {
   tipoActual: "ingreso",
+  esTransferencia: false,
 
   paginaActual: 0,
   LIMITE: 10,
@@ -24,4 +25,4 @@ export const catMov = {
   gasto: ["Comida", "Transporte", "Ocio", "Servicios", "Higiene", "Otros"]
 }
 
-
+window.state = state
