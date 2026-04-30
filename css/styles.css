@@ -29,7 +29,7 @@ h1{
 
 .cuenta {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr; /* igual que header */
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   gap: 10px;
   padding: 10px;
   font-size: 20px;
@@ -176,14 +176,20 @@ h1{
   display: grid;
   grid-template-columns: 
     110px /* Fecha */
-    90px /* Tipo */
-    120px /* Monto */
+    180px /* Tipo */
+    140px /* Monto */
     120px /* Cuenta */
     minmax(200px, 1fr); /* Detalle (flexible) */
 
   gap: 10px;
   padding: 8px 10px;
   align-items: center;
+}
+
+.col span.arrow {
+  font-size: 20px;
+  margin: 0 4px;
+  color: #888;
 }
 
 /* HEADER */
@@ -213,9 +219,11 @@ h1{
 
 /* FILAS */
 .movimiento {
+  align-items: center;
   background: #d0d0d7;
   border-bottom: 1px solid rgba(0,0,0,0.1);
   font-family: 'Libre Baskerville', serif;
+  gap: 8px;
 }
 
 /* COLORES */
@@ -228,6 +236,11 @@ h1{
   color: #dc2626;
   font-weight: bold;
 }
+.movimiento.transferencia {
+	  color: #0025f7;
+	  font-weight: bold;
+	  white-space: nowrap;
+  }
 
 /* COLUMNAS */
 .col {

@@ -11,11 +11,6 @@ import { calcularBalance } from "./balance.js";
 ========================= */
 export async function cargarHistorial(){
 
-  const desde = state.paginaActual * state.LIMITE;
-  const hasta = desde + state.LIMITE;
-
-  let hayMas = false;
-
   let query = supabaseClient
     .from("movimientos")
     .select(`
@@ -44,75 +39,130 @@ export async function cargarHistorial(){
       .order("id", { ascending: asc });
   }
 
-  // ===== PAGINACIÓN (pedimos 1 extra) =====
-  const { data, error } = await query.range(desde, hasta);
+  // =========================
+  // 🔥 TRAER TODO (SIN RANGE)
+  // =========================
+  let { data, error } = await query;
 
   if(error){
     alert(error.message);
     return;
   }
 
-  if(data.length === 0 && state.paginaActual > 0){
+  if(!data) data = [];
+
+  // =========================
+  // 🟡 FILTRO AHORROS REAL
+  // =========================
+  if(state.filtroTipo === "ahorro"){
+    data = data.filter(m => {
+
+      // ✔ ingresos en cuentas ahorro
+      if(m.tipo === "ingreso" && m.cuentas?.categoria === "ahorro"){
+        return true;
+      }
+
+      // ✔ transferencias hacia cuentas ahorro
+      if(m.tipo === "transferencia"){
+        const cuentaDestino = cuentasGlobal.find(c => c.id == m.descripcion);
+        return cuentaDestino?.categoria === "ahorro";
+      }
+
+      return false;
+    });
+  }
+
+  // =========================
+  // 📄 PAGINACIÓN DESPUÉS DEL FILTRO
+  // =========================
+  const total = data.length;
+
+  const inicio = state.paginaActual * state.LIMITE;
+  const fin = inicio + state.LIMITE;
+
+  if(total === 0 && state.paginaActual > 0){
     state.paginaActual--;
     return cargarHistorial();
   }
 
-  if(data.length > state.LIMITE){
-    hayMas = true;
-    data.pop();
-  }else{
-    hayMas = false;
-  }
+  const dataPaginada = data.slice(inicio, fin);
 
-  state.ultimaPagina = !hayMas;
+  state.ultimaPagina = fin >= total;
 
-  // ===== RENDER =====
+  data = dataPaginada;
+
+  // =========================
+  // 🧱 RENDER
+  // =========================
+  const esFiltroTransferencia = state.filtroTipo === "transferencia";
+
   let html = `
     <div class="header">
       <div class="col">Fecha</div>
       <div class="col">Tipo</div>
       <div class="col">Monto</div>
-      <div class="col">Cuenta</div>
-      <div class="col">Detalle</div>
+      <div class="col">${esFiltroTransferencia ? "Cuenta origen" : "Cuenta"}</div>
+      <div class="col">${esFiltroTransferencia ? "Cuenta destino" : "Detalle"}</div>
     </div>
   `;
 
   if(data.length === 0){
     html += `<div class="empty">No hay movimientos</div>`;
   }else{
+
     data.forEach(m => {
 
       const fecha = formatearFecha(m.fecha);
-      const cuenta = m.cuentas?.nombre || "-";
+      const esTransferencia = m.tipo === "transferencia";
+
+      const cuentaOrigen = m.cuentas?.nombre || "-";
       const monto = (m.monto / 100).toFixed(2);
 
-      const esIngreso = m.tipo === "ingreso";
-      const montoFinal = `${esIngreso ? "+" : "-"}${monto} ${m.moneda}`;
+      let cuentaDestinoNombre = "-";
+
+      if(esTransferencia){
+        const cuentaDestino = cuentasGlobal.find(c => c.id == m.descripcion);
+        cuentaDestinoNombre = cuentaDestino?.nombre || "Cuenta eliminada";
+      }
+
+      let montoFinal = "";
+
+      if(esTransferencia){
+        montoFinal = `${monto} ${m.moneda}`;
+      }else{
+        montoFinal = `${m.tipo === "ingreso" ? "+" : "-"}${monto} ${m.moneda}`;
+      }
 
       html += `
-		<div class="movimiento ${m.tipo}">
-			<span class="col">${fecha}</span>
-			<span class="col">${m.tipo.toUpperCase()}</span>
-			<span class="col">${montoFinal}</span>
-			<span class="col">${cuenta}</span>
-			<span class="col">${m.descripcion || ""}</span>
-			<div>
-				<button class="btnEdit" data-id="${m.id}">✏️</button>
-				<button class="btnDelete" data-id="${m.id}">🗑️</button>
-			</div>
-			
-		</div>
-		`;
+<div class="movimiento ${m.tipo}">
+  <span class="col">${fecha}</span>
+  <span class="col">${m.tipo.toUpperCase()}</span>
+  <span class="col">${montoFinal}</span>
+
+  <span class="col">
+    ${esTransferencia ? `${cuentaOrigen} <span class="arrow"> →</span>` : cuentaOrigen}
+  </span>
+
+  <span class="col">
+    ${esTransferencia ? cuentaDestinoNombre : (m.descripcion || "")}
+  </span>
+
+  <div>
+    <button class="btnEdit" data-id="${m.id}">✏️</button>
+    <button class="btnDelete" data-id="${m.id}">🗑️</button>
+  </div>
+</div>
+      `;
     });
   }
 
   document.getElementById("historial").innerHTML = html;
-  // eventos EDIT
+
+  // ===== EVENTOS =====
   document.querySelectorAll(".btnEdit").forEach(btn => {
     btn.addEventListener("click", () => editarMovimiento(btn.dataset.id));
   });
 
-  // eventos DELETE
   document.querySelectorAll(".btnDelete").forEach(btn => {
     btn.addEventListener("click", () => eliminarMovimiento(btn.dataset.id));
   });

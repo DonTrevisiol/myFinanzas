@@ -11,24 +11,43 @@ export function buildQuery(query){
 
   const { tipo, moneda } = getFiltrosHistorial()
 
-  // 🔴 IMPORTANTE: "recientes" NO filtra por fecha
+  // =========================
+  // 📅 FILTRO TIEMPO
+  // =========================
   if(state.filtroTiempo !== "recientes"){
     query = aplicarFiltroTiempo(query)
   }
 
-  if(tipo === "ingreso"){
+  // =========================
+  // 🎯 FILTRO TIPO (CORREGIDO)
+  // =========================
+
+  // 🟡 AHORRO (caso especial)
+	if(tipo === "ahorro"){
+	// traer ingresos y transferencias (sin filtrar categoría aquí)
+	  query = query.in("tipo", ["ingreso", "transferencia"])
+	}
+
+  // 🔵 TRANSFERENCIA
+  else if(tipo === "transferencia"){
+    query = query.eq("tipo", "transferencia")
+  }
+
+  // 🟢 INGRESO
+  else if(tipo === "ingreso"){
     query = query.eq("tipo", "ingreso")
   }
 
-  if(tipo === "gasto"){
+  // 🔴 GASTO
+  else if(tipo === "gasto"){
     query = query.eq("tipo", "gasto")
   }
 
-  if(tipo === "ahorro"){
-    query = query.eq("tipo", "ingreso")
-    query = query.eq("cuentas.categoria", "ahorro")
-  }
+  // ⚪ TODOS → no filtra por tipo
 
+  // =========================
+  // 💱 MONEDA
+  // =========================
   if(moneda !== "todas"){
     query = query.eq("moneda", moneda)
   }

@@ -41,85 +41,54 @@ export async function guardarMovimiento(){
     return
   }
 
-  // =========================
-  // 🔥 TRANSFERENCIA
-  // =========================
-  if(state.esTransferencia){
+// =========================
+// 🔥 TRANSFERENCIA (NUEVA LÓGICA)
+// =========================
+if(state.esTransferencia){
 
-    if(!cuentaDestinoId){
-      alert("Selecciona cuenta destino")
-      return
-    }
+  if(!cuentaDestinoId){
+    alert("Selecciona cuenta destino")
+    return
+  }
 
-    if(cuentaId === cuentaDestinoId){
-      alert("No puedes transferir a la misma cuenta")
-      return
-    }
+  if(cuentaId === cuentaDestinoId){
+    alert("No puedes transferir a la misma cuenta")
+    return
+  }
 
-    // 🔻 ORIGEN (gasto)
-    const { error: err1 } = await supabaseClient
-      .from("movimientos")
-      .insert({
-        cuenta_id: cuentaId,
-        tipo: "gasto",
-        monto: montoFinal,
-        moneda,
-        categoria: "Transferencia",
-        descripcion: `Transferencia a ${cuentaDestinoId}`,
-        fecha
-      })
-
-    if(err1){
-      console.error(err1)
-      alert("Error al descontar saldo")
-      return
-    }
-
-    // 🔺 DESTINO (ingreso)
-    const { error: err2 } = await supabaseClient
-      .from("movimientos")
-      .insert({
-        cuenta_id: cuentaDestinoId,
-        tipo: "ingreso",
-        monto: montoFinal,
-        moneda,
-        categoria: "Transferencia",
-        descripcion: `Transferencia desde ${cuentaId}`,
-        fecha
-      })
-
-    if(err2){
-      console.error(err2)
-
-      // rollback
-      await supabaseClient.from("movimientos").insert({
-        cuenta_id: cuentaId,
-        tipo: "ingreso",
-        monto: montoFinal,
-        moneda,
-        categoria: "Reverso",
-        descripcion: "Rollback transferencia",
-        fecha
-      })
-
-      alert("Error en destino. Se revirtió la operación.")
-      return
-    }
-
-    // 🔥 ACTUALIZAR SALDOS
-    await supabaseClient.rpc("restar_saldo", {
-      id_cuenta: cuentaId,
+  // 🔥 GUARDAR COMO UN SOLO MOVIMIENTO
+  const { error } = await supabaseClient
+    .from("movimientos")
+    .insert({
+      cuenta_id: cuentaId, // origen
+      tipo: "transferencia",
       monto: montoFinal,
-      moneda_param: moneda
+      moneda,
+      categoria: "Transferencia",
+      descripcion: cuentaDestinoId, // guardamos destino aquí
+      fecha
     })
 
-    await supabaseClient.rpc("sumar_saldo", {
-      id_cuenta: cuentaDestinoId,
-      monto: montoFinal,
-      moneda_param: moneda
-    })
+  if(error){
+    console.error(error)
+    alert("Error al guardar transferencia")
+    return
+  }
 
-  }else{
+  // 🔻 restar origen
+  await supabaseClient.rpc("restar_saldo", {
+    id_cuenta: cuentaId,
+    monto: montoFinal,
+    moneda_param: moneda
+  })
+
+  // 🔺 sumar destino
+  await supabaseClient.rpc("sumar_saldo", {
+    id_cuenta: cuentaDestinoId,
+    monto: montoFinal,
+    moneda_param: moneda
+  })
+}else{
 
     // =========================
     // 🔥 INGRESO / GASTO NORMAL
