@@ -3,6 +3,7 @@
 import { buildQuery } from "./queryBuilder.js";
 import { formatearFecha } from "./utils.js";
 import { state } from "./state.js";
+import { cuentasGlobal } from "../cuentas/state.js";
 import { abrirModal, cargarMonedasPorCuenta } from "./modal.js";
 import { calcularBalance } from "./balance.js";
 

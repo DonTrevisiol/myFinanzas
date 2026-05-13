@@ -6,6 +6,7 @@
 ========================= */
 import { buildQuery } from "./queryBuilder.js";
 import { state } from "./state.js";
+import { cuentasGlobal } from "../cuentas/state.js";
 export async function calcularBalance(){
 
   let query = supabaseClient

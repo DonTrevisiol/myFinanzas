@@ -2,6 +2,7 @@
 
 import { limpiarFormularioMovimiento, obtenerFechaLocal } from "./utils.js";
 import { state } from "./state.js";
+import { cuentasGlobal } from "../cuentas/state.js";
 import { cerrarModal } from "./modal.js";
 import { cargarHistorial } from "./historial.js";
 import { calcularBalance } from "./balance.js";

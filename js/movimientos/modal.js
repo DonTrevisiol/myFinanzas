@@ -1,8 +1,9 @@
 /* ./myFinanzas/js/movimientos/modal.js */
 
 import { catMov, state } from "./state.js";
+import { cuentasGlobal } from "../cuentas/state.js";
 import { obtenerFechaLocal } from "./utils.js";
-import { cargarCuentas } from "../cuentas.js"
+import { cargarCuentas } from "../cuentas/index.js"
 
 /* =========================
    MODAL
@@ -69,8 +70,9 @@ export function abrirModal(tipo){
     `<option value="" disabled selected hidden>Seleccionar moneda</option>`
 
   cargarCategorias()
-  cargarMonedasPorCuenta()
   cargarCuentas()
+  cargarMonedasPorCuenta()
+  
 }
 
 export function cerrarModal(){

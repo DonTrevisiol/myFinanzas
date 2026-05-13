@@ -3,7 +3,7 @@
 import { cargarHistorial } from "./movimientos/historial.js"
 import { calcularBalance } from "./movimientos/balance.js"
 import { guardarMovimiento } from "./movimientos/form.js"
-import { cargarCuentas } from "./cuentas.js"
+import { cargarCuentas } from "./cuentas/index.js"
 import { cargarMonedasPorCuenta, abrirModal, cerrarModal } from "./movimientos/modal.js"
 import { state } from "./movimientos/state.js"
 import { mostrarApp, mostrarLogin } from "./ui.js"
