@@ -15,3 +15,5 @@ export function mostrarLogin(){
   // limpiar password
   document.getElementById("password").value = ""
 }
+
+window.mostrarLogin = mostrarLogin

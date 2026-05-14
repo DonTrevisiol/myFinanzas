@@ -300,6 +300,200 @@ h1{
 }
 
 /* =========================
+   GESTIÓN DE CUENTAS
+========================= */
+
+.gestion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.gestion-header h2 {
+  margin: 0;
+}
+
+.gestion-header button {
+  padding: 10px 18px;
+  font-size: 15px;
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.gestion-header button:hover {
+  background: #15803d;
+}
+
+.gestion-cuenta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.gestion-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.gestion-nombre {
+  font-size: 18px;
+}
+
+.gestion-meta {
+  font-size: 13px;
+  opacity: 0.75;
+  text-transform: capitalize;
+}
+
+.gestion-saldos {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.gestion-acciones {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.gestion-acciones button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-editar {
+  background: #e5e7eb;
+  color: #111;
+}
+
+.btn-editar:hover {
+  background: #d1d5db;
+}
+
+.btn-eliminar {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.btn-eliminar:hover {
+  background: #fecaca;
+}
+
+#modalCuenta input,
+#modalCuenta select {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+#modalCuenta button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+#btnGuardarCuenta {
+  background: #16a34a;
+  color: white;
+}
+
+#btnGuardarCuenta:hover {
+  background: #15803d;
+}
+
+#btnCerrarModalCuenta {
+  background: #e5e7eb;
+  color: #111;
+}
+
+/* =========================
+   EDITAR DIVISAS
+========================= */
+
+.saldos-editar-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.saldo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.saldo-moneda-label {
+  font-weight: 700;
+  font-size: 14px;
+  min-width: 48px;
+  color: #374151;
+}
+
+.saldo-row input {
+  flex: 1;
+  margin-bottom: 0 !important;
+}
+
+.saldo-row.nueva input.saldo-nueva-moneda {
+  max-width: 72px;
+  flex: 0 0 72px;
+  text-transform: uppercase;
+}
+
+.btn-quitar-saldo {
+  width: auto !important;
+  padding: 4px 10px !important;
+  margin-top: 0 !important;
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  font-size: 16px !important;
+  border-radius: 6px !important;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.btn-quitar-saldo:hover {
+  background: #fecaca !important;
+}
+
+#btnAgregarDivisa {
+  width: auto !important;
+  padding: 6px 14px !important;
+  margin-top: 4px !important;
+  margin-bottom: 10px !important;
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+  font-size: 13px !important;
+  border-radius: 6px !important;
+}
+
+
+/* =========================
    RESPONSIVE (MOBILE)
 ========================= */
 

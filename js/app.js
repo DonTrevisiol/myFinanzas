@@ -14,6 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initApp()
 })
 
+window.initApp = initApp
+window.cargarCuentas = cargarCuentas
+
 // ===== APP INIT =====
 async function initApp(){
   const session = await checkSession()
@@ -38,12 +41,22 @@ function setEvents(){
     mostrarVista("viewDashboard")
   })
 
+  document.getElementById("btnGestion")?.addEventListener("click", () => {
+    mostrarVista("viewGestion")
+    cargarCuentasGestion()
+  })
+
   document.getElementById("btnHistorial")?.addEventListener("click", () => {
     mostrarVista("viewHistorial")
     state.paginaActual = 0
     cargarHistorial()
     calcularBalance()
   })
+
+  // GESTIÓN MODAL
+  document.getElementById("btnNuevaCuenta")?.addEventListener("click", () => abrirModalCuenta("crear"))
+  document.getElementById("btnGuardarCuenta")?.addEventListener("click", guardarCuenta)
+  document.getElementById("btnCerrarModalCuenta")?.addEventListener("click", cerrarModalCuenta)
 
   // ===== DASHBOARD FILTROS =====
   document.getElementById("filtroTipoCuenta")?.addEventListener("change", cargarCuentas)
@@ -113,7 +126,7 @@ function setEvents(){
 
 // ===== UI =====
 export function mostrarVista(vista){
-  ["viewDashboard","viewHistorial"].forEach(v => {
+  ["viewDashboard","viewGestion","viewHistorial"].forEach(v => {
     const el = document.getElementById(v)
     if(el) el.style.display = "none"
   })
